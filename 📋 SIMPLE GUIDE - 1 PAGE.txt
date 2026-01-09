@@ -1,0 +1,53 @@
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║     📋 PABBLY CALLFLOW - SIMPLE 1-PAGE GUIDE           ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════
+  📱 ON SALES TEAM PHONES
+═══════════════════════════════════════════════════════
+
+1. Install "Cube Call Recorder ACR" from Play Store
+
+2. Enable "Record all calls automatically"
+
+3. Make calls normally - they record automatically
+
+4. At end of day, share recordings via WhatsApp to admin
+
+
+═══════════════════════════════════════════════════════
+  💻 ON ADMIN/MANAGER COMPUTER
+═══════════════════════════════════════════════════════
+
+1. Start app: Double-click FINAL_FIX.bat
+
+2. Open browser: http://localhost:3000
+
+3. Login: admin@callflow.com / admin123
+
+4. Go to: Calls → Add Call
+
+5. Upload recording files received from sales team
+
+6. Play recordings anytime by clicking ▶ button
+
+
+═══════════════════════════════════════════════════════
+  🎯 THAT'S IT!
+═══════════════════════════════════════════════════════
+
+Simple workflow:
+  Sales team → Makes calls → Auto-recorded
+  → Share via WhatsApp → Admin uploads → Done!
+
+
+App Link:
+https://play.google.com/store/apps/details?id=com.catalinagroup.callrecorder
+
+
+═══════════════════════════════════════════════════════
+
+Full detailed guide: ✅ START NOW - PHASE 1 SETUP.txt

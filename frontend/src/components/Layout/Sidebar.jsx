@@ -22,7 +22,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const drawerWidth = 260;
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -39,35 +39,32 @@ const Sidebar = () => {
     item.roles.includes(user?.role)
   );
 
-  return (
-    <Drawer
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-        },
-      }}
-      variant="permanent"
-      anchor="left"
-    >
+  const handleNavigation = (path) => {
+    navigate(path);
+    if (onDrawerToggle) {
+      onDrawerToggle();
+    }
+  };
+
+  const drawerContent = (
+    <Box>
       <Box sx={{ p: 3, textAlign: 'center' }}>
         {/* Pabbly Logo */}
         <Box
           sx={{
-            width: 48,
-            height: 48,
-            borderRadius: 1.5,
-            background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
+            width: 64,
+            height: 64,
+            margin: '0 auto 12px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 12px',
-            boxShadow: '0 2px 8px rgba(33, 150, 243, 0.2)',
           }}
         >
-          <PhoneIcon sx={{ fontSize: 28, color: 'white' }} />
+          <img
+            src="/pabbly-logo.png"
+            alt="Pabbly Logo"
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
         </Box>
 
         {/* Pabbly Branding */}
@@ -101,7 +98,7 @@ const Sidebar = () => {
           <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
               selected={location.pathname === item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavigation(item.path)}
               sx={{
                 borderRadius: 1.5,
                 py: 1.2,
@@ -136,7 +133,47 @@ const Sidebar = () => {
           </ListItem>
         ))}
       </List>
-    </Drawer>
+    </Box>
+  );
+
+  return (
+    <>
+      {/* Mobile Drawer */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onDrawerToggle}
+        ModalProps={{
+          keepMounted: true, // Better mobile performance
+        }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      {/* Desktop Drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', sm: 'block' },
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
+    </>
   );
 };
 

@@ -26,11 +26,7 @@ export const callService = {
     return response.data;
   },
 
-  uploadRecording: async (id, file, duration) => {
-    const formData = new FormData();
-    formData.append('recording', file);
-    if (duration) formData.append('duration', duration);
-
+  uploadRecording: async (id, formData) => {
     const response = await api.post(`/calls/${id}/recording`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

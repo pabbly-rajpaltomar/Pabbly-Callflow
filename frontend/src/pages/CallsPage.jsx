@@ -26,6 +26,8 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Phone as PhoneIcon,
+  PlayArrow as PlayIcon,
+  CloudUpload as UploadIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import callService from '../services/callService';
@@ -44,6 +46,7 @@ const CallsPage = () => {
     call_status: 'pending',
     notes: '',
   });
+  const [recordingFile, setRecordingFile] = useState(null);
 
   useEffect(() => {
     fetchCalls();
@@ -99,15 +102,40 @@ const CallsPage = () => {
 
   const handleSubmit = async () => {
     try {
+      let callId;
       if (selectedCall) {
         await callService.updateCall(selectedCall.id, formData);
+        callId = selectedCall.id;
       } else {
-        await callService.createCall(formData);
+        const response = await callService.createCall(formData);
+        callId = response.data.call.id;
       }
+
+      // Upload recording if file is selected
+      if (recordingFile && callId) {
+        const formDataWithFile = new FormData();
+        formDataWithFile.append('recording', recordingFile);
+        await callService.uploadRecording(callId, formDataWithFile);
+      }
+
       fetchCalls();
       handleCloseDialog();
+      setRecordingFile(null);
     } catch (error) {
       console.error('Error saving call:', error);
+      alert('Error saving call: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check if file is audio
+      if (!file.type.startsWith('audio/')) {
+        alert('Please select an audio file');
+        return;
+      }
+      setRecordingFile(file);
     }
   };
 
@@ -168,6 +196,7 @@ const CallsPage = () => {
                   <TableCell>Duration</TableCell>
                   <TableCell>Outcome</TableCell>
                   <TableCell>Status</TableCell>
+                  <TableCell>Recording</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -191,6 +220,24 @@ const CallsPage = () => {
                         color={getStatusColor(call.call_status)}
                         size="small"
                       />
+                    </TableCell>
+                    <TableCell>
+                      {call.recording_id ? (
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => {
+                            const audio = new Audio(`http://localhost:5000/api/calls/${call.id}/recording`);
+                            audio.play();
+                          }}
+                        >
+                          <PlayIcon />
+                        </IconButton>
+                      ) : (
+                        <Typography variant="caption" color="text.secondary">
+                          No recording
+                        </Typography>
+                      )}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton size="small" onClick={() => handleOpenDialog(call)}>
@@ -291,6 +338,32 @@ const CallsPage = () => {
             multiline
             rows={3}
           />
+
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Call Recording (optional)
+            </Typography>
+            <Button
+              variant="outlined"
+              component="label"
+              startIcon={<UploadIcon />}
+              fullWidth
+              sx={{ mt: 1 }}
+            >
+              {recordingFile ? recordingFile.name : 'Upload Recording'}
+              <input
+                type="file"
+                hidden
+                accept="audio/*"
+                onChange={handleFileChange}
+              />
+            </Button>
+            {recordingFile && (
+              <Typography variant="caption" color="success.main" sx={{ mt: 1, display: 'block' }}>
+                ✓ File selected: {recordingFile.name} ({(recordingFile.size / 1024 / 1024).toFixed(2)} MB)
+              </Typography>
+            )}
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>

@@ -1,0 +1,214 @@
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║     📞 HOW TO TEST CALL RECORDING                      ║
+║     (Complete Step-by-Step Guide)                     ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+
+✅ READY! Call recording feature is now complete!
+
+
+┌────────────────────────────────────────────────────────┐
+│  STEP 1: RECORD A CALL ON YOUR PHONE                   │
+└────────────────────────────────────────────────────────┘
+
+  Option A: Use Built-in Recorder (If your phone has it)
+  ──────────────────────────────────────────────────────
+  1. Make a call from your phone
+  2. During call, tap "Record" button (if available)
+  3. Recording saved to your phone
+
+
+  Option B: Install Call Recorder App
+  ──────────────────────────────────────────────────────
+  1. Install any call recorder app from Play Store
+     Examples:
+     - "Automatic Call Recorder"
+     - "Call Recorder - Cube ACR"
+     - "ACR Phone"
+
+  2. Make a test call (call your friend or family)
+  3. App will automatically record
+  4. Recording saved in app
+
+
+  Option C: Record Your Voice (Quick Test)
+  ──────────────────────────────────────────────────────
+  1. Open Voice Recorder app on your phone
+  2. Record yourself talking for 10-20 seconds
+  3. Save the recording
+  4. This works for testing!
+
+
+┌────────────────────────────────────────────────────────┐
+│  STEP 2: TRANSFER RECORDING TO YOUR COMPUTER           │
+└────────────────────────────────────────────────────────┘
+
+  Method A: USB Cable
+  ──────────────────────────────────────────────────────
+  1. Connect phone to PC via USB
+  2. Open phone folder on PC
+  3. Find recording file (usually in:
+     Phone/Recordings or Phone/Call Recordings)
+  4. Copy to your Desktop
+
+
+  Method B: WhatsApp/Email
+  ──────────────────────────────────────────────────────
+  1. Share recording via WhatsApp to yourself
+  2. Open WhatsApp on PC
+  3. Download the audio file
+  4. Save to Desktop
+
+
+  Method C: Google Drive/Cloud
+  ──────────────────────────────────────────────────────
+  1. Upload recording to Google Drive from phone
+  2. Open Google Drive on PC
+  3. Download the file
+  4. Save to Desktop
+
+
+┌────────────────────────────────────────────────────────┐
+│  STEP 3: UPLOAD TO PABBLY CALLFLOW                     │
+└────────────────────────────────────────────────────────┘
+
+  1. Open your browser: http://localhost:3000
+
+  2. Login (if not already logged in)
+
+  3. Click "Calls" in the sidebar (left side)
+
+  4. Click "Add Call" button (top right)
+
+  5. Fill in the form:
+     ┌─────────────────────────────────────────┐
+     │ Phone Number: 9876543210                │
+     │ Call Type: Outgoing                     │
+     │ Start Time: (select date/time)          │
+     │ Duration: 120 (in seconds)              │
+     │ Outcome: Answered                       │
+     │ Call Status: Interested                 │
+     │ Notes: Test call recording              │
+     │                                         │
+     │ [Upload Recording button]               │
+     │ Click here to select your audio file ↑  │
+     └─────────────────────────────────────────┘
+
+  6. Click "Upload Recording" button
+
+  7. Select your audio file from Desktop
+
+  8. Click "Create" button
+
+  9. Done! Call uploaded! ✓
+
+
+┌────────────────────────────────────────────────────────┐
+│  STEP 4: PLAY THE RECORDING                            │
+└────────────────────────────────────────────────────────┘
+
+  1. You'll see your call in the calls table
+
+  2. In the "Recording" column, you'll see a Play button ▶
+
+  3. Click the Play button ▶
+
+  4. Recording will play! 🔊
+
+  5. You can pause, stop, replay anytime
+
+
+┌────────────────────────────────────────────────────────┐
+│  SUPPORTED AUDIO FORMATS                               │
+└────────────────────────────────────────────────────────┘
+
+  ✓ MP3 (.mp3)
+  ✓ M4A (.m4a)
+  ✓ WAV (.wav)
+  ✓ AAC (.aac)
+  ✓ OGG (.ogg)
+  ✓ AMR (.amr)
+
+  Most phone recordings are in MP3 or M4A format.
+
+
+┌────────────────────────────────────────────────────────┐
+│  EXAMPLE TEST DATA                                     │
+└────────────────────────────────────────────────────────┘
+
+  Call 1:
+  Phone: +91-9876543210
+  Duration: 120 seconds (2 minutes)
+  Status: Interested
+  Notes: Customer wants product demo
+
+  Call 2:
+  Phone: +91-9988776655
+  Duration: 60 seconds (1 minute)
+  Status: Callback
+  Notes: Call back tomorrow at 3 PM
+
+
+┌────────────────────────────────────────────────────────┐
+│  WHAT YOU CAN DO                                       │
+└────────────────────────────────────────────────────────┘
+
+  ✓ Add calls with recordings
+  ✓ Play recordings directly in browser
+  ✓ Edit call details
+  ✓ Add notes about the call
+  ✓ Track call status (Interested, Callback, etc.)
+  ✓ Delete calls
+  ✓ View all calls in a table
+  ✓ See duration, time, phone number
+
+
+┌────────────────────────────────────────────────────────┐
+│  TROUBLESHOOTING                                       │
+└────────────────────────────────────────────────────────┘
+
+  Q: "Upload Recording" button not working?
+  A: Make sure you select an audio file, not video/image
+
+  Q: Recording not playing?
+  A: Check if backend is running (FINAL_FIX.bat)
+     Check browser console for errors
+
+  Q: Can't find recording on phone?
+  A: Look in: Phone/Recordings, Phone/Call Recordings,
+     or in your call recorder app folder
+
+  Q: File too large?
+  A: Recordings should be under 50MB
+     Most call recordings are 1-5MB
+
+
+┌────────────────────────────────────────────────────────┐
+│  NEXT STEPS (Future)                                   │
+└────────────────────────────────────────────────────────┘
+
+  Right now: Manual upload (for testing)
+
+  In future: When mobile app is built:
+  - Automatic call detection
+  - Automatic recording
+  - Automatic upload to server
+  - No manual work needed!
+
+
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║  🎉 READY TO TEST!                                     ║
+║                                                        ║
+║  1. Record a call on your phone                       ║
+║  2. Transfer to PC                                    ║
+║  3. Go to http://localhost:3000                       ║
+║  4. Calls → Add Call → Upload Recording               ║
+║  5. Play and enjoy! 🎵                                ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+
+Your CallFlow system is now fully working! 🚀

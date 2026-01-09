@@ -1,0 +1,248 @@
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║     🏠 HOW TO WORK FROM HOME                           ║
+║     (Continue Your Work on Different PC)              ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+
+┌────────────────────────────────────────────────────────┐
+│  YOUR CODE IS SAFE ON GITHUB!                          │
+└────────────────────────────────────────────────────────┘
+
+  ✓ Your code is already uploaded to GitHub
+  ✓ You can access it from ANY computer
+  ✓ Work from office, home, anywhere!
+  ✓ Changes sync between all computers
+
+
+┌────────────────────────────────────────────────────────┐
+│  METHOD 1: COPY VIA USB DRIVE (Simple)                 │
+└────────────────────────────────────────────────────────┘
+
+  ON OFFICE PC (Before Going Home):
+  ══════════════════════════════════════════════════════
+  1. Copy entire "Pabbly Callflow" folder
+  2. Paste to USB drive or external hard drive
+  3. Done!
+
+  AT HOME PC:
+  ══════════════════════════════════════════════════════
+  1. Plug in USB drive
+  2. Copy "Pabbly Callflow" folder to your home PC Desktop
+
+  3. Install requirements (if not already):
+     - Node.js: https://nodejs.org
+     - PostgreSQL: https://postgresql.org/download/windows
+     - Git: https://git-scm.com/download/win
+
+  4. Setup database:
+     - Copy backend\.env.example to backend\.env
+     - Open backend\.env in Notepad
+     - Change password to your home PC PostgreSQL password
+
+  5. Start application:
+     - Double-click: FINAL_FIX.bat
+     - Wait for browser to open
+     - Login and work!
+
+  6. When you make changes:
+     - Double-click: PUSH_TO_GITHUB.bat
+     - Changes uploaded to GitHub ✓
+
+
+┌────────────────────────────────────────────────────────┐
+│  METHOD 2: DOWNLOAD FROM GITHUB (Recommended)          │
+└────────────────────────────────────────────────────────┘
+
+  AT HOME PC:
+  ══════════════════════════════════════════════════════
+
+  Step 1: Install Requirements
+  ────────────────────────────────────────────────────
+  Install these if not already installed:
+  - Node.js: https://nodejs.org
+  - PostgreSQL: https://postgresql.org/download/windows
+  - Git: https://git-scm.com/download/win
+
+  Step 2: Download Code from GitHub
+  ────────────────────────────────────────────────────
+  Open Command Prompt (Win+R, type "cmd", press Enter)
+
+  Type these commands:
+
+  cd Desktop
+  git clone https://github.com/pabbly-rajpaltomar/Pabbly-Callflow.git
+
+  This downloads your code!
+
+  Step 3: Setup Environment
+  ────────────────────────────────────────────────────
+  cd Pabbly-Callflow
+  copy backend\.env.example backend\.env
+  notepad backend\.env
+
+  In Notepad:
+  - Change DB_PASSWORD to your home PC PostgreSQL password
+  - Save and close
+
+  Step 4: Start Application
+  ────────────────────────────────────────────────────
+  Double-click: FINAL_FIX.bat
+
+  This will:
+  - Install all dependencies
+  - Create database
+  - Start backend and frontend
+  - Open browser automatically
+
+  Step 5: Work and Push Changes
+  ────────────────────────────────────────────────────
+  Make your changes, then:
+  Double-click: PUSH_TO_GITHUB.bat
+
+  Your changes upload to GitHub!
+
+
+┌────────────────────────────────────────────────────────┐
+│  SYNCING BETWEEN OFFICE & HOME                         │
+└────────────────────────────────────────────────────────┘
+
+  OFFICE → HOME
+  ══════════════════════════════════════════════════════
+  At Office:
+  1. Make changes
+  2. Double-click: PUSH_TO_GITHUB.bat
+  3. Code uploaded ✓
+
+  At Home:
+  1. Open Command Prompt in "Pabbly Callflow" folder
+  2. Run: git pull origin master
+  3. Latest changes downloaded ✓
+  4. Double-click: FINAL_FIX.bat
+  5. Continue working!
+
+  HOME → OFFICE
+  ══════════════════════════════════════════════════════
+  At Home:
+  1. Make changes
+  2. Double-click: PUSH_TO_GITHUB.bat
+  3. Code uploaded ✓
+
+  At Office:
+  1. Open Command Prompt in "Pabbly Callflow" folder
+  2. Run: git pull origin master
+  3. Latest changes downloaded ✓
+  4. Double-click: FINAL_FIX.bat
+  5. Continue working!
+
+
+┌────────────────────────────────────────────────────────┐
+│  SIMPLE WORKFLOW                                       │
+└────────────────────────────────────────────────────────┘
+
+  ┌────────────────┐         ┌────────────────┐
+  │   Office PC    │ ◄────► │   GitHub       │
+  │                │         │   (Cloud)      │
+  └────────────────┘         └────────────────┘
+          ▲                         ▲
+          │                         │
+          └─────────┬───────────────┘
+                    │
+          ┌─────────▼────────┐
+          │    Home PC       │
+          │                  │
+          └──────────────────┘
+
+  All PCs sync through GitHub!
+
+
+┌────────────────────────────────────────────────────────┐
+│  IMPORTANT NOTES                                       │
+└────────────────────────────────────────────────────────┘
+
+  ⚠️  .env file is NOT on GitHub (for security)
+      → You need to create .env on each PC
+      → Copy from .env.example
+      → Update with that PC's PostgreSQL password
+
+  ⚠️  node_modules NOT on GitHub (too big)
+      → FINAL_FIX.bat will install them automatically
+      → This happens on each PC separately
+
+  ⚠️  Database is separate on each PC
+      → Office PC has its own database
+      → Home PC has its own database
+      → They don't sync automatically
+      → Only code syncs through GitHub
+
+  ✓  Always PUSH before switching PCs
+      → Ensures latest code is on GitHub
+      → Next PC can PULL latest version
+
+
+┌────────────────────────────────────────────────────────┐
+│  BATCH FILES YOU'LL USE                                │
+└────────────────────────────────────────────────────────┘
+
+  FINAL_FIX.bat
+  → Start the application (first time on new PC)
+
+  PUSH_TO_GITHUB.bat
+  → Upload your changes to GitHub
+
+  CHECK_GITHUB_STATUS.bat
+  → Check if code is uploaded or not
+
+
+┌────────────────────────────────────────────────────────┐
+│  TROUBLESHOOTING                                       │
+└────────────────────────────────────────────────────────┘
+
+  Q: Code not working at home?
+  A: Check .env file has correct password
+     Run FINAL_FIX.bat again
+
+  Q: "Database connection failed"?
+  A: PostgreSQL not running or wrong password in .env
+
+  Q: Changes not showing?
+  A: Run "git pull origin master" to get latest code
+
+  Q: Can't push to GitHub?
+  A: Use Personal Access Token as password
+     See GITHUB_SETUP_GUIDE.txt
+
+
+┌────────────────────────────────────────────────────────┐
+│  QUICK REFERENCE COMMANDS                              │
+└────────────────────────────────────────────────────────┘
+
+  Download code from GitHub:
+  git clone https://github.com/pabbly-rajpaltomar/Pabbly-Callflow.git
+
+  Get latest changes:
+  git pull origin master
+
+  Upload your changes:
+  git push origin master
+
+  Check status:
+  git status
+
+
+╔════════════════════════════════════════════════════════╗
+║                                                        ║
+║  🎉 YOU CAN NOW WORK FROM ANYWHERE!                    ║
+║                                                        ║
+║  Your code is safe on GitHub                          ║
+║  Access from office, home, laptop, anywhere!          ║
+║                                                        ║
+╚════════════════════════════════════════════════════════╝
+
+
+Your GitHub Repository:
+https://github.com/pabbly-rajpaltomar/Pabbly-Callflow
+
+
+Need help? Read: GITHUB_SETUP_GUIDE.txt

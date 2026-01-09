@@ -48,19 +48,19 @@ const Dashboard = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom fontWeight="bold">
+      <Typography variant="h4" gutterBottom fontWeight="bold" sx={{ fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
         Dashboard
       </Typography>
 
-      <Box sx={{ mt: 3 }}>
+      <Box sx={{ mt: { xs: 2, sm: 3 } }}>
         <StatsCards stats={stats} />
       </Box>
 
-      <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={8}>
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mt: { xs: 1, sm: 2 } }}>
+        <Grid item xs={12} lg={8}>
           <CallsChart data={callsOverTime} />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} lg={4}>
           <Box>
             {/* Additional charts or stats can go here */}
           </Box>
@@ -68,7 +68,7 @@ const Dashboard = () => {
       </Grid>
 
       {user.role !== 'sales_rep' && (
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: { xs: 2, sm: 3 } }}>
           <TeamPerformance data={teamPerformance} />
         </Box>
       )}

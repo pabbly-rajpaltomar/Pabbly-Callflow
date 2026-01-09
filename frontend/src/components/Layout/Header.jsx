@@ -14,10 +14,11 @@ import {
 import {
   AccountCircle,
   ExitToApp as LogoutIcon,
+  Menu as MenuIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
-const Header = () => {
+const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -54,15 +55,24 @@ const Header = () => {
     <AppBar
       position="fixed"
       sx={{
-        width: `calc(100% - 260px)`,
-        ml: '260px',
+        width: { sm: `calc(100% - 260px)` },
+        ml: { sm: '260px' },
         bgcolor: 'white',
         color: 'text.primary',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       }}
     >
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <IconButton
+          color="inherit"
+          edge="start"
+          onClick={onMenuClick}
+          sx={{ mr: 2, display: { sm: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           Welcome back, {user?.full_name}
         </Typography>
 

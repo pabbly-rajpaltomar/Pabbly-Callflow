@@ -1,0 +1,22 @@
+{
+  "name": "Pabbly Callflow",
+  "short_name": "Callflow",
+  "description": "Sales Call Tracking System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2196F3",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/pabbly-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pabbly-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
