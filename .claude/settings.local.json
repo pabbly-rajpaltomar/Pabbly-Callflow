@@ -6,7 +6,8 @@
       "Bash(node src/migrations/runMigrations.js:*)",
       "Bash(echo \"# Server Configuration\nPORT=5000\nNODE_ENV=development\n\n# Database Configuration\nDB_HOST=localhost\nDB_PORT=5432\nDB_NAME=callflow_db\nDB_USER=postgres\nDB_PASSWORD=your_postgres_password_here\n\n# JWT Secret\nJWT_SECRET=callflow_secret_key_2024_change_in_production\nJWT_EXPIRES_IN=7d\n\n# CORS\nCORS_ORIGIN=http://localhost:3000\n\n# File Upload\nMAX_FILE_SIZE=50000000\nUPLOAD_PATH=./uploads\")",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

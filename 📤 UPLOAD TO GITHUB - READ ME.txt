@@ -1,0 +1,128 @@
+============================================
+   📤 HOW TO UPLOAD YOUR CODE TO GITHUB
+   (Super Simple - 3 Steps!)
+============================================
+
+WHY DO THIS?
+------------
+✓ Save your code online (like Google Drive for code)
+✓ Access from any computer
+✓ Never lose your work
+✓ Continue on different PC easily
+
+
+🎯 QUICK 3-STEP PROCESS:
+========================
+
+STEP 1️⃣: CREATE GITHUB ACCOUNT & REPOSITORY
+-------------------------------------------
+1. Go to: https://github.com
+2. Click "Sign up" (create free account)
+3. After login, click "+" button (top right)
+4. Click "New repository"
+5. Name: Pabbly-Callflow
+6. Make it PRIVATE ✓ (important!)
+7. Click "Create repository"
+
+
+STEP 2️⃣: RUN FIRST TIME SETUP
+-------------------------------
+1. Double-click: FIRST_TIME_GITHUB_SETUP.bat
+2. Enter your name and email
+3. It will ask for repository URL - copy from GitHub
+4. Done! Code uploaded! ✓
+
+
+STEP 3️⃣: FUTURE UPDATES (Every time you make changes)
+------------------------------------------------------
+Just double-click: PUSH_TO_GITHUB.bat
+
+That's it! Your changes upload to GitHub!
+
+
+============================================
+   📥 HOW TO DOWNLOAD ON NEW PC
+============================================
+
+When you change PC or want code on another computer:
+
+1. Install these first:
+   - Node.js: https://nodejs.org
+   - PostgreSQL: https://www.postgresql.org/download/windows/
+   - Git: https://git-scm.com/download/win
+
+2. Open Command Prompt and run:
+   git clone https://github.com/YOUR-USERNAME/Pabbly-Callflow.git
+
+3. Go to the folder:
+   cd Pabbly-Callflow
+
+4. Setup database password:
+   - Copy backend\.env.example to backend\.env
+   - Open backend\.env in Notepad
+   - Change "your_postgres_password_here" to your actual password
+
+5. Start everything:
+   Double-click: FINAL_FIX.bat
+
+6. Done! Working on new PC! ✓
+
+
+============================================
+   📚 FILES YOU NEED TO KNOW
+============================================
+
+🔧 SETUP (Use once):
+   FIRST_TIME_GITHUB_SETUP.bat ← Run this first time
+
+📤 UPLOAD CODE (Use every time):
+   PUSH_TO_GITHUB.bat ← Upload changes to GitHub
+
+📖 DETAILED GUIDE:
+   GITHUB_SETUP_GUIDE.txt ← All details explained
+
+🚀 START APP:
+   FINAL_FIX.bat ← Start the application
+
+
+============================================
+   ⚠️ IMPORTANT NOTES
+============================================
+
+✓ Your .env file (with passwords) is NOT uploaded
+  → This keeps your database password safe
+  → On new PC, you need to create .env again
+
+✓ Keep your GitHub repository PRIVATE
+  → Your code is private and secure
+
+✓ Save your GitHub username and password
+  → You'll need them to upload/download code
+
+✓ For password, use "Personal Access Token"
+  → See GITHUB_SETUP_GUIDE.txt for how to create
+
+
+============================================
+   ❓ HAVING PROBLEMS?
+============================================
+
+Read: GITHUB_SETUP_GUIDE.txt
+(It has detailed solutions for every step)
+
+OR
+
+Search YouTube: "how to push code to github windows"
+
+
+============================================
+   🎉 YOU'RE ALL SET!
+============================================
+
+Summary:
+1. Create GitHub account + repository ✓
+2. Run FIRST_TIME_GITHUB_SETUP.bat ✓
+3. Later use PUSH_TO_GITHUB.bat to upload changes ✓
+4. On new PC: git clone + FINAL_FIX.bat ✓
+
+Your code is safe and accessible anywhere! 🚀
