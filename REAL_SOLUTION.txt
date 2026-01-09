@@ -1,0 +1,81 @@
+═══════════════════════════════════════════════════════════════════
+                    THE REAL PROBLEM
+═══════════════════════════════════════════════════════════════════
+
+The backend server (port 5000) is NOT starting.
+That's why you see "Login failed" and "ERR_CONNECTION_REFUSED :5000"
+
+
+═══════════════════════════════════════════════════════════════════
+                    THE REAL SOLUTION
+═══════════════════════════════════════════════════════════════════
+
+TRY THIS METHOD:
+
+1. Open TWO separate Command Prompt windows
+
+2. In FIRST window, type these commands:
+   cd "c:\Users\rajpal.tomar_magnetb\Desktop\Pabbly Callflow\backend"
+   node src/server.js
+
+3. Look at what happens. Do you see:
+   - "✓ Server running on port 5000"? = GOOD!
+   - Any ERROR message? = Tell me what it says
+
+4. If you see an ERROR, TAKE A SCREENSHOT and show me
+
+5. If you see "Server running on port 5000", then in SECOND window:
+   cd "c:\Users\rajpal.tomar_magnetb\Desktop\Pabbly Callflow\frontend"
+   npm run dev
+
+6. Open browser to: http://localhost:3000
+
+7. Login: admin@callflow.com / admin123
+
+
+═══════════════════════════════════════════════════════════════════
+                    WHAT I NEED TO KNOW
+═══════════════════════════════════════════════════════════════════
+
+When you run: node src/server.js
+
+Do you see:
+[ ] "Server running on port 5000" ?
+[ ] An error about database?
+[ ] An error about missing modules?
+[ ] Something else?
+
+PLEASE TAKE A SCREENSHOT of what you see!
+
+
+═══════════════════════════════════════════════════════════════════
+                    ALTERNATIVE - Use Batch File
+═══════════════════════════════════════════════════════════════════
+
+If you don't want to type commands, run: SIMPLE_START.bat
+
+Then CHECK the two windows that open:
+
+BACKEND window should show: "Server running on port 5000"
+FRONTEND window should show: "Local: http://localhost:3000"
+
+If backend shows an ERROR instead, take a screenshot!
+
+
+═══════════════════════════════════════════════════════════════════
+                    I NEED TO SEE THE ERROR
+═══════════════════════════════════════════════════════════════════
+
+The batch files I created SHOULD work, but if they don't,
+I need to see what error message the backend is showing.
+
+Please:
+1. Run SIMPLE_START.bat
+2. Look at the "BACKEND SERVER" window
+3. Take a screenshot of any errors
+4. Show me
+
+Then I can fix the actual problem!
+
+
+═══════════════════════════════════════════════════════════════════

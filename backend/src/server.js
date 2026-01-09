@@ -1,0 +1,75 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const path = require('path');
+const config = require('./config/config');
+const { sequelize, testConnection } = require('./config/database');
+
+const authRoutes = require('./routes/auth');
+const callRoutes = require('./routes/calls');
+const contactRoutes = require('./routes/contacts');
+const userRoutes = require('./routes/users');
+const analyticsRoutes = require('./routes/analytics');
+
+const app = express();
+
+app.use(helmet());
+app.use(cors({ origin: config.corsOrigin }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'CallFlow API Server',
+    version: '1.0.0'
+  });
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/calls', callRoutes);
+app.use('/api/contacts', contactRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal server error',
+    error: config.nodeEnv === 'development' ? err : {}
+  });
+});
+
+const startServer = async () => {
+  try {
+    await testConnection();
+
+    await sequelize.sync({ alter: false });
+    console.log('✓ Database models synchronized');
+
+    app.listen(config.port, () => {
+      console.log(`✓ Server running on port ${config.port}`);
+      console.log(`✓ Environment: ${config.nodeEnv}`);
+      console.log(`✓ API available at: http://localhost:${config.port}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+module.exports = app;

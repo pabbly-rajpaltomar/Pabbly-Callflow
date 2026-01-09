@@ -1,0 +1,149 @@
+═══════════════════════════════════════════════════════════════════════
+                    CALLFLOW - FINAL INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════
+
+CURRENT STATUS:
+✓ Node.js is installed
+✓ PostgreSQL is installed
+✓ Backend dependencies are installed
+✓ Frontend dependencies are installed
+✓ Frontend is currently running (you showed me the terminal)
+
+WHAT'S MISSING:
+✗ Backend server needs to be started
+✗ Database needs to be set up
+
+═══════════════════════════════════════════════════════════════════════
+                    OPTION 1: AUTOMATIC (EASIEST)
+═══════════════════════════════════════════════════════════════════════
+
+1. Close any open terminals/command prompts
+
+2. Double-click this file:
+   START_NOW.bat
+
+3. When asked for PostgreSQL password, type: postgres
+   (Press Enter)
+
+4. Two black windows will open - Keep them open!
+
+5. Wait 30 seconds
+
+6. Open browser to: http://localhost:3000
+
+7. Login:
+   Email: admin@callflow.com
+   Password: admin123
+
+═══════════════════════════════════════════════════════════════════════
+                    OPTION 2: MANUAL (IF AUTOMATIC FAILS)
+═══════════════════════════════════════════════════════════════════════
+
+STEP 1: Create Database
+------------------------
+Open Command Prompt and run:
+
+psql -U postgres
+
+Enter your PostgreSQL password, then type:
+
+CREATE DATABASE callflow_db;
+\q
+
+
+STEP 2: Start Backend
+---------------------
+Open Command Prompt and run:
+
+cd "c:\Users\rajpal.tomar_magnetb\Desktop\Pabbly Callflow\backend"
+npm run migrate
+npm run dev
+
+Keep this window open!
+You should see: "✓ Server running on port 5000"
+
+
+STEP 3: Start Frontend
+----------------------
+Open ANOTHER Command Prompt and run:
+
+cd "c:\Users\rajpal.tomar_magnetb\Desktop\Pabbly Callflow\frontend"
+npm run dev
+
+Keep this window open too!
+You should see: "Local: http://localhost:3000/"
+
+
+STEP 4: Open Browser
+--------------------
+Go to: http://localhost:3000
+
+Login:
+Email: admin@callflow.com
+Password: admin123
+
+═══════════════════════════════════════════════════════════════════════
+                    VERIFY SYSTEM IS WORKING
+═══════════════════════════════════════════════════════════════════════
+
+Double-click: TEST_IF_WORKING.bat
+
+This will tell you if both servers are running correctly.
+
+═══════════════════════════════════════════════════════════════════════
+                    YOUR URLS
+═══════════════════════════════════════════════════════════════════════
+
+Dashboard: http://localhost:3000
+Backend API: http://localhost:5000
+
+Test backend by opening: http://localhost:5000
+You should see: {"success":true,"message":"CallFlow API Server"}
+
+═══════════════════════════════════════════════════════════════════════
+                    TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════
+
+Problem: "password authentication failed"
+Solution: Use the password you set during PostgreSQL installation
+
+Problem: "Port already in use"
+Solution: Close all terminal windows and try again
+
+Problem: "npm is not recognized"
+Solution: Restart your computer and try again
+
+Problem: Frontend works but backend doesn't
+Solution: Make sure you started BOTH servers (two separate windows)
+
+═══════════════════════════════════════════════════════════════════════
+                    IMPORTANT NOTES
+═══════════════════════════════════════════════════════════════════════
+
+► You need TWO terminal windows open:
+  1. Backend (port 5000)
+  2. Frontend (port 3000)
+
+► Don't close these windows while using CallFlow
+
+► Start backend FIRST, then frontend
+
+► Wait 30 seconds after starting before opening browser
+
+═══════════════════════════════════════════════════════════════════════
+                    SUCCESS CHECKLIST
+═══════════════════════════════════════════════════════════════════════
+
+When everything is working, you'll see:
+
+[✓] Backend window shows: "✓ Server running on port 5000"
+[✓] Frontend window shows: "Local: http://localhost:3000/"
+[✓] Browser opens to login page
+[✓] You can login with admin@callflow.com / admin123
+[✓] Dashboard displays with menu and statistics
+
+═══════════════════════════════════════════════════════════════════════
+
+RECOMMENDED: Just run START_NOW.bat and wait!
+
+═══════════════════════════════════════════════════════════════════════

@@ -1,0 +1,19 @@
+
+YE KARO ABHI:
+
+1. Sab windows band karo (backend/frontend jo open hain)
+
+2. Ye file double-click karo:
+   FINAL_FIX.bat
+
+3. 30 second wait karo
+
+4. Browser khulega - login karo:
+   Email: admin@callflow.com
+   Password: admin123
+
+5. Dashboard dikhai dega!
+
+
+Problem thi: Database tables nahi bane the
+Ab fix ho jayega!

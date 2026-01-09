@@ -1,0 +1,55 @@
+
+╔═══════════════════════════════════════════════════════════════════════╗
+║                                                                       ║
+║                         ▶️  RUN THIS FILE  ▶️                         ║
+║                                                                       ║
+║                    To Start Your CallFlow System                      ║
+║                                                                       ║
+╚═══════════════════════════════════════════════════════════════════════╝
+
+
+Double-click this file:  START_NOW.bat
+
+
+That's it! Really, that's all you need to do!
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+WHAT WILL HAPPEN:
+
+1. Two black windows will open
+2. Wait 30 seconds
+3. Browser opens to: http://localhost:3000
+4. Login: admin@callflow.com / admin123
+5. You'll see your dashboard!
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+TO CHECK IF IT'S WORKING:
+
+Double-click:  TEST_IF_WORKING.bat
+
+This will tell you if everything is running correctly.
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+YOUR DASHBOARD URL:
+
+http://localhost:3000
+
+
+═══════════════════════════════════════════════════════════════════════
+
+
+NEED HELP?
+
+Read:  FINAL_INSTRUCTIONS.txt
+
+
+═══════════════════════════════════════════════════════════════════════

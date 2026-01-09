@@ -1,0 +1,194 @@
+============================================
+   HOW TO PUSH CODE TO GITHUB
+   (Step-by-step for beginners)
+============================================
+
+WHAT IS GITHUB?
+---------------
+GitHub is like Google Drive for code. You upload your code there,
+and then you can download it on any computer.
+
+
+STEP 1: CREATE GITHUB ACCOUNT
+------------------------------
+1. Go to: https://github.com
+2. Click "Sign up"
+3. Enter your email, create password
+4. Verify your email
+5. Done! Remember your username and password
+
+
+STEP 2: INSTALL GIT ON YOUR COMPUTER
+------------------------------------
+1. Download Git from: https://git-scm.com/download/win
+2. Run the installer
+3. Click "Next" on all options (keep defaults)
+4. Restart your computer after installation
+
+
+STEP 3: CREATE NEW REPOSITORY ON GITHUB
+---------------------------------------
+1. Login to GitHub.com
+2. Click the "+" button (top right corner)
+3. Click "New repository"
+4. Repository name: Pabbly-Callflow
+5. Description: Sales Call Tracking System
+6. Keep it PRIVATE (important - has sensitive code)
+7. DO NOT check "Initialize with README" (we already have one)
+8. Click "Create repository"
+9. You'll see a page with commands - KEEP THIS PAGE OPEN
+
+
+STEP 4: FIRST TIME SETUP (Only needed once)
+-------------------------------------------
+Open Command Prompt in "Pabbly Callflow" folder:
+(Right-click folder → "Open in Terminal" OR "Git Bash Here")
+
+Then copy and paste these commands ONE BY ONE:
+
+1. Tell Git who you are:
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+
+   (Use the same email you used for GitHub)
+
+2. Initialize Git in this folder:
+   git init
+
+3. Add all files:
+   git add .
+
+4. Create first save point:
+   git commit -m "Initial commit - Pabbly Callflow project"
+
+5. Connect to your GitHub repository:
+   git remote add origin https://github.com/YOUR-USERNAME/Pabbly-Callflow.git
+
+   (Replace YOUR-USERNAME with your actual GitHub username)
+
+6. Push code to GitHub:
+   git push -u origin main
+
+   It will ask for username and password:
+   - Username: your GitHub username
+   - Password: you need to use a "Personal Access Token" (see below)
+
+
+STEP 5: CREATE PERSONAL ACCESS TOKEN (For password)
+---------------------------------------------------
+GitHub doesn't accept regular passwords anymore. You need a token:
+
+1. Go to: https://github.com/settings/tokens
+2. Click "Generate new token" → "Generate new token (classic)"
+3. Note: "Pabbly Callflow Access"
+4. Expiration: "No expiration"
+5. Check the box: "repo" (this gives full repository access)
+6. Scroll down, click "Generate token"
+7. COPY THE TOKEN - save it somewhere safe (Notepad)
+8. You can't see it again after you close the page!
+9. Use THIS TOKEN as password when git asks for password
+
+
+STEP 6: FUTURE UPDATES (Every time you make changes)
+----------------------------------------------------
+After you've done STEP 4 once, for future updates just:
+
+1. Double-click: PUSH_TO_GITHUB.bat
+
+   OR manually run these commands:
+   git add .
+   git commit -m "Your message about what changed"
+   git push origin main
+
+
+STEP 7: DOWNLOAD CODE ON NEW PC
+--------------------------------
+When you get a new PC and want to continue working:
+
+1. Install Node.js, PostgreSQL, and Git (like before)
+
+2. Open Command Prompt anywhere and run:
+   git clone https://github.com/YOUR-USERNAME/Pabbly-Callflow.git
+
+3. This downloads all your code!
+
+4. Then follow setup:
+   cd Pabbly-Callflow
+
+   Create backend/.env file (copy from .env.example)
+   Update the database password in .env
+
+   Double-click: FINAL_FIX.bat
+
+5. Done! Your project is running on new PC!
+
+
+SIMPLE WORKFLOW
+---------------
+On your current PC:
+1. Make changes to code
+2. Double-click PUSH_TO_GITHUB.bat
+3. Code uploaded to GitHub ✓
+
+On new PC:
+1. Run: git clone https://github.com/YOUR-USERNAME/Pabbly-Callflow.git
+2. Setup .env file with database password
+3. Run FINAL_FIX.bat
+4. Start working! ✓
+
+
+IMPORTANT NOTES
+---------------
+✓ Your .env file (with passwords) is NOT uploaded to GitHub (for security)
+✓ So on new PC, you need to create .env again (copy from .env.example)
+✓ node_modules folders are NOT uploaded (they're huge!)
+✓ Run "npm install" on new PC to download dependencies again
+✓ Keep your GitHub repository PRIVATE (it has your project code)
+✓ Save your Personal Access Token somewhere safe
+
+
+TROUBLESHOOTING
+---------------
+Q: "git is not recognized as a command"
+A: You need to install Git first (Step 2)
+
+Q: "Permission denied"
+A: Use Personal Access Token as password, not your GitHub password
+
+Q: "Repository not found"
+A: Check you typed the GitHub URL correctly with your username
+
+Q: "Already up to date" when pushing
+A: This means no new changes to upload - that's fine!
+
+
+NEED HELP?
+----------
+- Watch YouTube: "How to push code to GitHub for beginners"
+- GitHub Help: https://docs.github.com/en/get-started
+
+
+============================================
+   SUMMARY OF COMMANDS
+============================================
+
+FIRST TIME (Once only):
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR-USERNAME/Pabbly-Callflow.git
+git push -u origin main
+
+EVERY TIME AFTER (When you make changes):
+git add .
+git commit -m "Your message"
+git push origin main
+
+OR just double-click: PUSH_TO_GITHUB.bat
+
+ON NEW PC (Download code):
+git clone https://github.com/YOUR-USERNAME/Pabbly-Callflow.git
+
+============================================
+
+You're all set! Happy coding! 🚀

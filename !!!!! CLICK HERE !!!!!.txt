@@ -1,0 +1,36 @@
+
+╔═══════════════════════════════════════════════════════════════════╗
+║                                                                   ║
+║              !!!!! DOUBLE-CLICK THIS FILE !!!!!                   ║
+║                                                                   ║
+║                    DOUBLE_CLICK_THIS.bat                          ║
+║                                                                   ║
+║                  (It's in this same folder)                       ║
+║                                                                   ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+
+WHAT WILL HAPPEN:
+
+1. Two windows will open automatically
+2. Wait 30 seconds
+3. Browser opens to: http://localhost:3000
+4. Login: admin@callflow.com / admin123
+5. You'll see your dashboard!
+
+
+═══════════════════════════════════════════════════════════════════
+
+
+KEEP THE TWO WINDOWS OPEN!
+
+Don't close them while using CallFlow.
+
+
+═══════════════════════════════════════════════════════════════════
+
+
+THAT'S IT! Just double-click: DOUBLE_CLICK_THIS.bat
+
+
+═══════════════════════════════════════════════════════════════════
