@@ -63,6 +63,11 @@ const Call = sequelize.define('Call', {
       model: 'call_recordings',
       key: 'id'
     }
+  },
+  twilio_call_sid: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Twilio Call SID for tracking'
   }
 }, {
   tableName: 'calls',

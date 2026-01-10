@@ -1,5 +1,6 @@
 const { Call, CallRecording, Contact, User } = require('../models');
 const { Op } = require('sequelize');
+const twilioService = require('../services/twilioService');
 
 exports.createCall = async (req, res) => {
   try {
@@ -312,5 +313,143 @@ exports.uploadRecording = async (req, res) => {
       message: 'Server error while uploading recording.',
       error: error.message
     });
+  }
+};
+
+/**
+ * Initiate a call via Twilio
+ */
+exports.initiateCall = async (req, res) => {
+  try {
+    const { contact_id, phone_number } = req.body;
+
+    if (!phone_number) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number is required.'
+      });
+    }
+
+    // Create call record in database first
+    const call = await Call.create({
+      contact_id,
+      user_id: req.user.id,
+      phone_number,
+      call_type: 'outgoing',
+      call_status: 'initiated',
+      start_time: new Date()
+    });
+
+    // Initiate call via Twilio
+    try {
+      const callbackUrl = `${process.env.CORS_ORIGIN || 'http://localhost:3000'}/api/calls/webhook/${call.id}`;
+
+      const twilioCall = await twilioService.makeCall(
+        phone_number,
+        null,
+        callbackUrl,
+        true // Enable recording
+      );
+
+      // Update call with Twilio SID
+      await call.update({
+        twilio_call_sid: twilioCall.callSid,
+        call_status: 'ringing'
+      });
+
+      const callWithDetails = await Call.findByPk(call.id, {
+        include: [
+          { model: Contact, as: 'contact' },
+          { model: User, as: 'user', attributes: ['id', 'full_name', 'email'] }
+        ]
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Call initiated successfully.',
+        data: {
+          call: callWithDetails,
+          twilioCallSid: twilioCall.callSid
+        }
+      });
+    } catch (twilioError) {
+      // If Twilio fails, update call status to failed
+      await call.update({
+        call_status: 'failed',
+        end_time: new Date()
+      });
+
+      throw twilioError;
+    }
+  } catch (error) {
+    console.error('Initiate call error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to initiate call.',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Webhook to receive call status updates from Twilio
+ */
+exports.twilioWebhook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { CallStatus, CallDuration, RecordingUrl, RecordingSid } = req.body;
+
+    const call = await Call.findByPk(id);
+
+    if (!call) {
+      return res.status(404).send('Call not found');
+    }
+
+    const updates = {};
+
+    // Map Twilio status to our status
+    switch (CallStatus) {
+      case 'ringing':
+        updates.call_status = 'ringing';
+        break;
+      case 'in-progress':
+        updates.call_status = 'in_progress';
+        updates.outcome = 'answered';
+        break;
+      case 'completed':
+        updates.call_status = 'completed';
+        updates.end_time = new Date();
+        if (CallDuration) {
+          updates.duration = parseInt(CallDuration);
+        }
+        break;
+      case 'busy':
+      case 'no-answer':
+        updates.call_status = 'completed';
+        updates.outcome = 'no_answer';
+        updates.end_time = new Date();
+        break;
+      case 'failed':
+        updates.call_status = 'failed';
+        updates.end_time = new Date();
+        break;
+    }
+
+    await call.update(updates);
+
+    // If recording is available, save it
+    if (RecordingUrl && RecordingSid) {
+      await CallRecording.create({
+        call_id: id,
+        file_path: RecordingUrl,
+        recording_sid: RecordingSid,
+        duration: CallDuration ? parseInt(CallDuration) : null
+      });
+    }
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('Twilio webhook error:', error);
+    res.status(500).send('Error');
   }
 };

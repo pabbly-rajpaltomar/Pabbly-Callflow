@@ -40,6 +40,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import leadService from '../../services/leadService';
 import emailService from '../../services/emailService';
+import callService from '../../services/callService';
 
 const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
   const theme = useTheme();
@@ -240,11 +241,29 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
           description: `Scheduled Google Meet with ${lead.name}`
         });
       } else if (action === 'call') {
-        // Log call activity
-        await leadService.logActivity(lead.id, {
-          activity_type: 'call',
-          description: `Called ${lead.phone}`
-        });
+        try {
+          // Initiate call via Twilio
+          const response = await callService.initiateCall(lead.phone, lead.id);
+
+          setSnackbar({
+            open: true,
+            message: `Call initiated to ${lead.phone}. The call will connect shortly.`,
+            severity: 'success'
+          });
+
+          // Log activity
+          await leadService.logActivity(lead.id, {
+            activity_type: 'call',
+            description: `Initiated call to ${lead.phone} via Twilio`
+          });
+        } catch (error) {
+          console.error('Error initiating call:', error);
+          setSnackbar({
+            open: true,
+            message: error.response?.data?.message || 'Failed to initiate call. Please check Twilio credentials.',
+            severity: 'error'
+          });
+        }
       }
 
       if (onRefresh) onRefresh();

@@ -34,6 +34,14 @@ export const callService = {
     });
     return response.data;
   },
+
+  initiateCall: async (phoneNumber, contactId = null) => {
+    const response = await api.post('/calls/initiate', {
+      phone_number: phoneNumber,
+      contact_id: contactId
+    });
+    return response.data;
+  },
 };
 
 export default callService;
