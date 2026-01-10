@@ -40,6 +40,26 @@ const User = sequelize.define('User', {
   is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
+  },
+  team_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'teams',
+      key: 'id'
+    }
+  },
+  last_login_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  password_reset_required: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  onboarding_completed: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, {
   tableName: 'users',

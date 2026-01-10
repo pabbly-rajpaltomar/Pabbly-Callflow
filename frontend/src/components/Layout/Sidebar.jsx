@@ -17,6 +17,7 @@ import {
   Contacts as ContactsIcon,
   People as PeopleIcon,
   Assessment as AssessmentIcon,
+  LeaderboardOutlined as LeadsIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,6 +30,7 @@ const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', roles: ['admin', 'manager', 'sales_rep'] },
+    { text: 'Leads', icon: <LeadsIcon />, path: '/leads', roles: ['admin', 'manager', 'sales_rep'] },
     { text: 'Calls', icon: <PhoneIcon />, path: '/calls', roles: ['admin', 'manager', 'sales_rep'] },
     { text: 'Contacts', icon: <ContactsIcon />, path: '/contacts', roles: ['admin', 'manager', 'sales_rep'] },
     { text: 'Team', icon: <PeopleIcon />, path: '/team', roles: ['admin', 'manager'] },

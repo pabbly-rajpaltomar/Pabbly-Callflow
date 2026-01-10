@@ -25,6 +25,11 @@ export const contactService = {
     const response = await api.delete(`/contacts/${id}`);
     return response.data;
   },
+
+  bulkCreateContacts: async (contacts) => {
+    const response = await api.post('/contacts/bulk', { contacts });
+    return response.data;
+  },
 };
 
 export default contactService;

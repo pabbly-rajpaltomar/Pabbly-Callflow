@@ -4,6 +4,11 @@ const Call = require('./Call');
 const CallRecording = require('./CallRecording');
 const Team = require('./Team');
 const TeamMember = require('./TeamMember');
+const Lead = require('./Lead');
+const WebhookLog = require('./WebhookLog');
+const LeadAssignmentConfig = require('./LeadAssignmentConfig');
+const UserActivity = require('./UserActivity');
+const LeadActivity = require('./LeadActivity');
 
 // Define associations
 User.hasMany(Contact, { foreignKey: 'assigned_to', as: 'assignedContacts' });
@@ -24,11 +29,38 @@ Team.belongsTo(User, { foreignKey: 'manager_id', as: 'manager' });
 Team.belongsToMany(User, { through: TeamMember, foreignKey: 'team_id', as: 'members' });
 User.belongsToMany(Team, { through: TeamMember, foreignKey: 'user_id', as: 'teams' });
 
+// Lead associations
+User.hasMany(Lead, { foreignKey: 'assigned_to', as: 'assignedLeads' });
+User.hasMany(Lead, { foreignKey: 'created_by', as: 'createdLeads' });
+Lead.belongsTo(User, { foreignKey: 'assigned_to', as: 'assignedUser' });
+Lead.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+
+Lead.belongsTo(Contact, { foreignKey: 'converted_to_contact_id', as: 'convertedContact' });
+Contact.hasOne(Lead, { foreignKey: 'converted_to_contact_id', as: 'originLead' });
+
+WebhookLog.belongsTo(Lead, { foreignKey: 'lead_id', as: 'lead' });
+Lead.hasMany(WebhookLog, { foreignKey: 'lead_id', as: 'webhookLogs' });
+
+// UserActivity associations
+User.hasMany(UserActivity, { foreignKey: 'user_id', as: 'activities' });
+UserActivity.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
+// LeadActivity associations
+Lead.hasMany(LeadActivity, { foreignKey: 'lead_id', as: 'activities' });
+LeadActivity.belongsTo(Lead, { foreignKey: 'lead_id', as: 'lead' });
+User.hasMany(LeadActivity, { foreignKey: 'user_id', as: 'leadActivities' });
+LeadActivity.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 module.exports = {
   User,
   Contact,
   Call,
   CallRecording,
   Team,
-  TeamMember
+  TeamMember,
+  Lead,
+  WebhookLog,
+  LeadAssignmentConfig,
+  UserActivity,
+  LeadActivity
 };

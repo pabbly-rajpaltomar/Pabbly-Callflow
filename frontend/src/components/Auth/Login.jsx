@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Container,
   Box,
-  Card,
-  CardContent,
   TextField,
   Button,
   Typography,
   Alert,
   CircularProgress,
+  Divider,
+  Link,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
-import { Phone as PhoneIcon } from '@mui/icons-material';
+import {
+  Google as GoogleIcon,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
@@ -20,6 +25,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -40,90 +46,434 @@ const Login = () => {
     }
   };
 
+  const features = [
+    { icon: '🔗', title: 'Pabbly Connect', desc: 'Automate tasks & save 100X time.' },
+    { icon: '💬', title: 'Pabbly ChatFlow', desc: 'Automate WhatsApp conversation effortlessly.' },
+    { icon: '💳', title: 'Pabbly Subscription Billing', desc: 'Sell online & collect payments.' },
+    { icon: '📧', title: 'Pabbly Email Marketing', desc: 'Send emails to subscribers.' },
+    { icon: '🔌', title: 'Pabbly Hook', desc: 'Webhook event handling for scalable applications.' },
+  ];
+
   return (
-    <Container maxWidth="sm">
+    <Box sx={{ minHeight: '100vh', display: 'flex' }}>
+      {/* Left Panel */}
       <Box
         sx={{
-          minHeight: '100vh',
+          width: { xs: '0%', md: '40%' },
+          display: { xs: 'none', md: 'flex' },
+          flexDirection: 'column',
+          background: 'linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)',
+          p: 8,
+          position: 'relative',
+        }}
+      >
+        {/* Logo at top */}
+        <Box sx={{ mb: 10 }}>
+          <Box
+            component="img"
+            src="https://www.pabbly.com/wp-content/uploads/2020/08/Pabbly-Logo.svg"
+            alt="Pabbly Logo"
+            sx={{ height: 42 }}
+          />
+        </Box>
+
+        {/* Centered content */}
+        <Box sx={{ flex: 1 }}>
+          {/* Title */}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              mb: 1.5,
+              color: '#1a1a1a',
+              fontSize: '1.875rem',
+            }}
+          >
+            Unlimited Access & Features!
+          </Typography>
+
+          {/* Subtitle */}
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 5,
+              color: '#4a5568',
+              fontSize: '0.9375rem',
+            }}
+          >
+            Get Access to All Pabbly Applications at Single Price.
+          </Typography>
+
+          {/* Features with icon boxes */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3.5 }}>
+            {features.map((feature, index) => (
+              <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    bgcolor: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.5rem',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  }}
+                >
+                  {feature.icon}
+                </Box>
+                <Box sx={{ pt: 0.5 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      color: '#1a1a1a',
+                      fontSize: '0.9375rem',
+                      mb: 0.3,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {feature.title}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#5a6c7d',
+                      fontSize: '0.8125rem',
+                      lineHeight: 1.5,
+                      display: 'block',
+                    }}
+                  >
+                    {feature.desc}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Certification badges at bottom */}
+        <Box sx={{ display: 'flex', gap: 2.5, mt: 8 }}>
+          <Box
+            sx={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              bgcolor: '#3b82f6',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+            }}
+          >
+            <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.2 }}>
+              AICPA
+            </Typography>
+            <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, lineHeight: 1.2 }}>
+              SOC
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              bgcolor: 'white',
+              border: '3px solid #3b82f6',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#3b82f6',
+            }}
+          >
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1 }}>
+              ISO
+            </Typography>
+            <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, lineHeight: 1.1 }}>
+              27001
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Right Panel */}
+      <Box
+        sx={{
+          width: { xs: '100%', md: '60%' },
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          p: 4,
+          bgcolor: 'white',
         }}
       >
-        <Card sx={{ width: '100%', maxWidth: 450 }}>
-          <CardContent sx={{ p: 4 }}>
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <PhoneIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" gutterBottom>
-                CallFlow
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Sales Call Tracking System
-              </Typography>
-            </Box>
+        <Box sx={{ maxWidth: 460, width: '100%' }}>
+          {/* Mobile Logo */}
+          <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 4 }}>
+            <Box
+              component="img"
+              src="https://www.pabbly.com/wp-content/uploads/2020/08/Pabbly-Logo.svg"
+              alt="Pabbly Logo"
+              sx={{ height: 26 }}
+            />
+          </Box>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
+          {/* Title */}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              mb: 0.5,
+              fontSize: '1.875rem',
+              color: '#1a1a1a',
+            }}
+          >
+            Login to Pabbly Account
+          </Typography>
 
-            <form onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                margin="normal"
-                required
-                autoFocus
-              />
-              <TextField
-                fullWidth
-                label="Password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                margin="normal"
-                required
-              />
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={loading}
-                sx={{ mt: 3, mb: 2 }}
+          {/* Subtitle */}
+          <Typography
+            variant="body2"
+            sx={{
+              mb: 1,
+              fontSize: '0.875rem',
+              color: '#9ca3af',
+            }}
+          >
+            Sign in seconds. No credit card required.
+          </Typography>
+
+          {/* Sign up link - right aligned */}
+          <Box sx={{ textAlign: 'right', mb: 2.5 }}>
+            <Typography
+              variant="body2"
+              component="span"
+              sx={{ fontSize: '0.875rem', color: '#9ca3af' }}
+            >
+              Don't have a Pabbly Account?{' '}
+            </Typography>
+            <Link
+              component={RouterLink}
+              to="/signup"
+              sx={{
+                fontWeight: 600,
+                textDecoration: 'none',
+                color: '#2196f3',
+                fontSize: '0.875rem',
+              }}
+            >
+              Sign up
+            </Link>
+          </Box>
+
+          {/* Google Login Button */}
+          <Button
+            fullWidth
+            variant="outlined"
+            size="large"
+            startIcon={<GoogleIcon />}
+            sx={{
+              mb: 2,
+              borderColor: '#e5e7eb',
+              color: '#374151',
+              textTransform: 'none',
+              py: 1.5,
+              fontSize: '0.9375rem',
+              fontWeight: 500,
+              bgcolor: 'white',
+              borderRadius: 1.5,
+              '&:hover': {
+                borderColor: '#d1d5db',
+                bgcolor: '#f9fafb',
+              },
+            }}
+          >
+            Login with Google
+          </Button>
+
+          {/* Divider */}
+          <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
+            <Divider sx={{ flex: 1 }} />
+            <Typography
+              variant="body2"
+              sx={{ px: 2, color: '#9ca3af', fontSize: '0.875rem' }}
+            >
+              or
+            </Typography>
+            <Divider sx={{ flex: 1 }} />
+          </Box>
+
+          {/* Error Alert */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              placeholder="Email Address *"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoFocus
+              sx={{
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#2196f3',
+                    borderWidth: 2,
+                  },
+                },
+              }}
+            />
+
+            <TextField
+              fullWidth
+              placeholder="Password *"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleChange}
+              required
+              sx={{
+                mb: 0.5,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 1.5,
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#2196f3',
+                    borderWidth: 2,
+                  },
+                },
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showPassword ? (
+                        <VisibilityOff fontSize="small" />
+                      ) : (
+                        <Visibility fontSize="small" />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Forgot Password - right aligned */}
+            <Box sx={{ textAlign: 'right', mb: 2.5 }}>
+              <Link
+                href="#"
+                sx={{
+                  fontSize: '0.875rem',
+                  textDecoration: 'none',
+                  color: '#2196f3',
+                  fontWeight: 500,
+                }}
               >
-                {loading ? <CircularProgress size={24} /> : 'Login'}
-              </Button>
-            </form>
-
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Typography variant="body2">
-                Don't have an account?{' '}
-                <Link to="/signup" style={{ textDecoration: 'none', color: '#1976d2' }}>
-                  Sign up
-                </Link>
-              </Typography>
+                Forgot Password?
+              </Link>
             </Box>
 
-            <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-              <Typography variant="caption" color="text.secondary">
-                <strong>Demo Credentials:</strong>
-                <br />
-                Email: admin@callflow.com
-                <br />
-                Password: admin123
-              </Typography>
-            </Box>
-          </CardContent>
-        </Card>
+            {/* Login Button */}
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={loading}
+              sx={{
+                py: 1.5,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 600,
+                bgcolor: '#2196f3',
+                boxShadow: 'none',
+                borderRadius: 1.5,
+                '&:hover': {
+                  bgcolor: '#1976d2',
+                  boxShadow: 'none',
+                },
+              }}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+            </Button>
+          </form>
+
+          {/* Terms - centered */}
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              mt: 2.5,
+              textAlign: 'center',
+              color: '#9ca3af',
+              fontSize: '0.75rem',
+              lineHeight: 1.6,
+            }}
+          >
+            By signing in, I agree to Pabbly's{' '}
+            <Link href="#" sx={{ textDecoration: 'none', color: '#2196f3' }}>
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link href="#" sx={{ textDecoration: 'none', color: '#2196f3' }}>
+              Privacy Policy
+            </Link>
+            .
+          </Typography>
+
+          {/* Demo Credentials */}
+          <Box
+            sx={{
+              mt: 3,
+              p: 2.5,
+              bgcolor: '#f9fafb',
+              borderRadius: 1.5,
+              border: '1px solid #e5e7eb',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 600,
+                display: 'block',
+                mb: 1,
+                fontSize: '0.875rem',
+                color: '#1a1a1a',
+              }}
+            >
+              Demo Credentials:
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ display: 'block', color: '#6b7280', fontSize: '0.8125rem' }}
+            >
+              Email: admin@callflow.com
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ display: 'block', color: '#6b7280', fontSize: '0.8125rem' }}
+            >
+              Password: admin123
+            </Typography>
+          </Box>
+        </Box>
       </Box>
-    </Container>
+    </Box>
   );
 };
 

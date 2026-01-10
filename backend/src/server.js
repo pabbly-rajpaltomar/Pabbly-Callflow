@@ -11,6 +11,9 @@ const callRoutes = require('./routes/calls');
 const contactRoutes = require('./routes/contacts');
 const userRoutes = require('./routes/users');
 const analyticsRoutes = require('./routes/analytics');
+const leadRoutes = require('./routes/leads');
+const webhookRoutes = require('./routes/webhooks');
+const emailRoutes = require('./routes/email');
 
 const app = express();
 
@@ -35,6 +38,9 @@ app.use('/api/calls', callRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/leads', leadRoutes);
+app.use('/api/webhooks', webhookRoutes);
+app.use('/api/email', emailRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

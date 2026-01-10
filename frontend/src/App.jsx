@@ -9,6 +9,7 @@ import Layout from './components/Layout/Layout';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
 import Dashboard from './pages/Dashboard';
+import LeadsPage from './pages/LeadsPage';
 import CallsPage from './pages/CallsPage';
 import ContactsPage from './pages/ContactsPage';
 import TeamPage from './pages/TeamPage';
@@ -59,6 +60,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/leads"
+        element={
+          <PrivateRoute>
+            <LeadsPage />
           </PrivateRoute>
         }
       />

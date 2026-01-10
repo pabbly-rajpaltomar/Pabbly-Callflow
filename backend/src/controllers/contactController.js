@@ -229,3 +229,63 @@ exports.deleteContact = async (req, res) => {
     });
   }
 };
+
+// Bulk create contacts
+exports.bulkCreateContacts = async (req, res) => {
+  try {
+    const { contacts } = req.body;
+
+    if (!Array.isArray(contacts) || contacts.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Contacts array is required.'
+      });
+    }
+
+    const createdContacts = [];
+    const errors = [];
+
+    for (let i = 0; i < contacts.length; i++) {
+      const contactData = contacts[i];
+
+      if (!contactData.name || !contactData.phone) {
+        errors.push({ row: i + 1, message: 'Name and phone are required' });
+        continue;
+      }
+
+      try {
+        const contact = await Contact.create({
+          name: contactData.name,
+          phone: contactData.phone,
+          email: contactData.email || null,
+          company: contactData.company || null,
+          lead_status: contactData.lead_status || 'new',
+          assigned_to: contactData.assigned_to || null,
+          notes: contactData.notes || null,
+          created_by: req.user.id
+        });
+
+        createdContacts.push(contact);
+      } catch (error) {
+        errors.push({ row: i + 1, message: error.message });
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `${createdContacts.length} contacts created successfully.`,
+      data: {
+        created: createdContacts.length,
+        errors: errors.length,
+        errorDetails: errors
+      }
+    });
+  } catch (error) {
+    console.error('Bulk create contacts error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while creating contacts.',
+      error: error.message
+    });
+  }
+};
