@@ -47,6 +47,8 @@ import {
   TrendingUp as TrendingUpIcon,
   People as PeopleIcon,
   PersonAdd as PersonAddIcon,
+  Phone as PhoneIcon,
+  Cancel as CancelIcon,
 } from '@mui/icons-material';
 import leadService from '../services/leadService';
 import { useAuth } from '../context/AuthContext';
@@ -65,6 +67,7 @@ const LeadsPage = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
+  const [stats, setStats] = useState({ total: 0, new: 0, contacted: 0, qualified: 0, converted: 0, lost: 0 });
   const [searchTerm, setSearchTerm] = useState('');
   const [currentTab, setCurrentTab] = useState(0);
   const [viewMode, setViewMode] = useState('kanban');
@@ -101,6 +104,9 @@ const LeadsPage = () => {
       const response = await leadService.getLeads(params);
       setLeads(response.data.leads);
       setTotalCount(response.data.pagination.total);
+      if (response.data.stats) {
+        setStats(response.data.stats);
+      }
       setError('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch leads');
@@ -122,11 +128,13 @@ const LeadsPage = () => {
     return true;
   });
 
-  // Stats
-  const totalLeads = leads.length;
-  const newLeads = leads.filter(l => l.lead_status === 'new').length;
-  const qualifiedLeads = leads.filter(l => l.lead_status === 'qualified').length;
-  const convertedLeads = leads.filter(l => l.lead_status === 'converted').length;
+  // Stats from API
+  const totalLeads = stats.total;
+  const newLeads = stats.new;
+  const contactedLeads = stats.contacted;
+  const qualifiedLeads = stats.qualified;
+  const convertedLeads = stats.converted;
+  const lostLeads = stats.lost;
 
   // Fetch webhook URL
   const fetchWebhookUrl = async () => {
@@ -409,6 +417,34 @@ const LeadsPage = () => {
           flex: 1,
           p: 2,
           borderRadius: 2,
+          background: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)',
+          border: '1px solid #ffe082'
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography fontSize={12} color="#f57c00" fontWeight={500}>Contacted</Typography>
+              <Typography variant="h4" fontWeight={700} color="#e65100">
+                {contactedLeads}
+              </Typography>
+            </Box>
+            <Box sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              bgcolor: '#ff9800',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <PhoneIcon sx={{ color: 'white', fontSize: 20 }} />
+            </Box>
+          </Box>
+        </Paper>
+
+        <Paper sx={{
+          flex: 1,
+          p: 2,
+          borderRadius: 2,
           background: 'linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%)',
           border: '1px solid #ce93d8'
         }}>
@@ -457,6 +493,34 @@ const LeadsPage = () => {
               justifyContent: 'center'
             }}>
               <CheckIcon sx={{ color: 'white', fontSize: 20 }} />
+            </Box>
+          </Box>
+        </Paper>
+
+        <Paper sx={{
+          flex: 1,
+          p: 2,
+          borderRadius: 2,
+          background: 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)',
+          border: '1px solid #ef9a9a'
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography fontSize={12} color="#c62828" fontWeight={500}>Lost</Typography>
+              <Typography variant="h4" fontWeight={700} color="#b71c1c">
+                {lostLeads}
+              </Typography>
+            </Box>
+            <Box sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              bgcolor: '#f44336',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <CancelIcon sx={{ color: 'white', fontSize: 20 }} />
             </Box>
           </Box>
         </Paper>

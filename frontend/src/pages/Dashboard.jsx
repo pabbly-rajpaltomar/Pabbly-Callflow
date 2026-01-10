@@ -22,7 +22,8 @@ import {
   Timer as TimerIcon,
   TrendingUp as TrendingUpIcon,
   EmojiEvents as TrophyIcon,
-  CalendarMonth as CalendarIcon
+  CalendarMonth as CalendarIcon,
+  PersonAdd as LeadsIcon
 } from '@mui/icons-material';
 import CallsChart from '../components/Dashboard/CallsChart';
 import analyticsService from '../services/analyticsService';
@@ -179,7 +180,7 @@ const Dashboard = () => {
 
       {/* Stats Cards */}
       <Box sx={{ display: 'flex', gap: 2, mb: 2.5 }}>
-        {/* Total Calls */}
+        {/* Total Leads */}
         <Paper sx={{
           flex: 1,
           p: 2,
@@ -189,9 +190,9 @@ const Dashboard = () => {
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box>
-              <Typography fontSize={12} color="#1e40af" fontWeight={500}>Total Calls</Typography>
+              <Typography fontSize={12} color="#1e40af" fontWeight={500}>Total Leads</Typography>
               <Typography variant="h4" fontWeight={700} color="#1e3a8a">
-                {stats?.totalCalls || 0}
+                {stats?.totalLeads || 0}
               </Typography>
             </Box>
             <Box sx={{
@@ -203,7 +204,7 @@ const Dashboard = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <PhoneIcon sx={{ color: 'white', fontSize: 20 }} />
+              <LeadsIcon sx={{ color: 'white', fontSize: 20 }} />
             </Box>
           </Box>
         </Paper>

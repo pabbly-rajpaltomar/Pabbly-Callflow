@@ -56,6 +56,7 @@ const ContactsPage = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [stats, setStats] = useState({ total: 0, new: 0, active: 0, inactive: 0 });
   const [dense, setDense] = useState(false);
   const [selected, setSelected] = useState([]);
   const [formData, setFormData] = useState({
@@ -76,6 +77,9 @@ const ContactsPage = () => {
       setLoading(true);
       const response = await contactService.getContacts();
       setContacts(response.data.contacts);
+      if (response.data.stats) {
+        setStats(response.data.stats);
+      }
     } catch (error) {
       console.error('Error fetching contacts:', error);
       setError('Failed to fetch contacts');
@@ -187,10 +191,10 @@ const ContactsPage = () => {
     return matchesSearch;
   });
 
-  // Stats
-  const totalContacts = contacts.length;
-  const optedInContacts = contacts.filter(c => c.lead_status !== 'lost').length;
-  const optedOutContacts = contacts.filter(c => c.lead_status === 'lost').length;
+  // Stats from API
+  const totalContacts = stats.total || 0;
+  const optedInContacts = stats.optedIn || (stats.total - (stats.lost || 0)) || 0;
+  const optedOutContacts = stats.optedOut || stats.lost || 0;
 
   if (loading) {
     return (

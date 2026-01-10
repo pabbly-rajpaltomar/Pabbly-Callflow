@@ -73,6 +73,7 @@ const CallsPage = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [dense, setDense] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [stats, setStats] = useState({ total: 0, outgoing: 0, incoming: 0, missed: 0, totalDuration: 0 });
 
   useEffect(() => {
     fetchCalls();
@@ -83,6 +84,9 @@ const CallsPage = () => {
       setLoading(true);
       const response = await callService.getCalls();
       setCalls(response.data.calls);
+      if (response.data.stats) {
+        setStats(response.data.stats);
+      }
     } catch (error) {
       console.error('Error fetching calls:', error);
       setError('Failed to fetch calls');
@@ -106,13 +110,15 @@ const CallsPage = () => {
     return true;
   });
 
-  // Stats
-  const totalCalls = calls.length;
-  const answeredCalls = calls.filter(c => c.outcome === 'answered').length;
-  const missedCalls = calls.filter(c => c.outcome === 'no_answer' || c.outcome === 'missed').length;
-  const callbackCalls = calls.filter(c => c.call_status === 'callback').length;
-  const avgDuration = calls.length > 0
-    ? Math.round(calls.reduce((sum, c) => sum + (c.duration || 0), 0) / calls.length)
+  // Stats from API
+  const totalCalls = stats.total;
+  const outgoingCalls = stats.outgoing;
+  const incomingCalls = stats.incoming;
+  const missedCalls = stats.missed;
+  const answeredCalls = stats.answered || 0;
+  const callbackCalls = stats.callback || 0;
+  const avgDuration = stats.total > 0
+    ? Math.round(stats.totalDuration / stats.total)
     : 0;
 
   const handleOpenDialog = (call = null) => {

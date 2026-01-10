@@ -93,6 +93,24 @@ exports.getCalls = async (req, res) => {
       offset: parseInt(offset)
     });
 
+    // Get stats by call type (using same role-based filter)
+    const baseWhere = {};
+    if (req.user.role === 'sales_rep') {
+      baseWhere.user_id = req.user.id;
+    }
+
+    const [totalCount, outgoingCount, incomingCount, missedCount, answeredCount, callbackCount] = await Promise.all([
+      Call.count({ where: baseWhere }),
+      Call.count({ where: { ...baseWhere, call_type: 'outgoing' } }),
+      Call.count({ where: { ...baseWhere, call_type: 'incoming' } }),
+      Call.count({ where: { ...baseWhere, call_type: 'missed' } }),
+      Call.count({ where: { ...baseWhere, outcome: 'answered' } }),
+      Call.count({ where: { ...baseWhere, call_status: 'callback' } })
+    ]);
+
+    // Get total duration
+    const totalDuration = await Call.sum('duration', { where: baseWhere }) || 0;
+
     res.json({
       success: true,
       data: {
@@ -102,6 +120,15 @@ exports.getCalls = async (req, res) => {
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(count / limit)
+        },
+        stats: {
+          total: totalCount,
+          outgoing: outgoingCount,
+          incoming: incomingCount,
+          missed: missedCount,
+          answered: answeredCount,
+          callback: callbackCount,
+          totalDuration: totalDuration
         }
       }
     });

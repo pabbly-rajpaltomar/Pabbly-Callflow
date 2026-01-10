@@ -81,6 +81,21 @@ exports.getContacts = async (req, res) => {
       offset: parseInt(offset)
     });
 
+    // Get stats by status (using same role-based filter)
+    const baseWhere = {};
+    if (req.user.role === 'sales_rep') {
+      baseWhere.assigned_to = req.user.id;
+    }
+
+    const [totalCount, newCount, contactedCount, qualifiedCount, convertedCount, lostCount] = await Promise.all([
+      Contact.count({ where: baseWhere }),
+      Contact.count({ where: { ...baseWhere, lead_status: 'new' } }),
+      Contact.count({ where: { ...baseWhere, lead_status: 'contacted' } }),
+      Contact.count({ where: { ...baseWhere, lead_status: 'qualified' } }),
+      Contact.count({ where: { ...baseWhere, lead_status: 'converted' } }),
+      Contact.count({ where: { ...baseWhere, lead_status: 'lost' } })
+    ]);
+
     res.json({
       success: true,
       data: {
@@ -90,6 +105,16 @@ exports.getContacts = async (req, res) => {
           page: parseInt(page),
           limit: parseInt(limit),
           totalPages: Math.ceil(count / limit)
+        },
+        stats: {
+          total: totalCount,
+          new: newCount,
+          contacted: contactedCount,
+          qualified: qualifiedCount,
+          converted: convertedCount,
+          lost: lostCount,
+          optedIn: totalCount - lostCount,
+          optedOut: lostCount
         }
       }
     });

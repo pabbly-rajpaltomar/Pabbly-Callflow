@@ -17,7 +17,11 @@ exports.getDashboardStats = async (req, res) => {
     if (start_date || end_date) {
       where.start_time = {};
       if (start_date) where.start_time[Op.gte] = new Date(start_date);
-      if (end_date) where.start_time[Op.lte] = new Date(end_date);
+      if (end_date) {
+        const endDateTime = new Date(end_date);
+        endDateTime.setHours(23, 59, 59, 999);
+        where.start_time[Op.lte] = endDateTime;
+      }
     }
 
     const totalCalls = await Call.count({ where });
@@ -58,11 +62,37 @@ exports.getDashboardStats = async (req, res) => {
       group: ['call_status']
     });
 
-    const conversionRate = totalCalls > 0 ? (convertedCalls / answeredCalls) * 100 : 0;
+    const conversionRate = answeredCalls > 0 ? (convertedCalls / answeredCalls) * 100 : 0;
+
+    // Get leads counts (with optional date filter on created_at)
+    const leadWhere = {};
+    if (req.user.role === 'sales_rep') {
+      leadWhere.assigned_to = req.user.id;
+    }
+
+    // Apply date filter for leads using created_at (not start_time)
+    if (start_date || end_date) {
+      leadWhere.created_at = {};
+      if (start_date) leadWhere.created_at[Op.gte] = new Date(start_date);
+      if (end_date) {
+        const endDateTime = new Date(end_date);
+        endDateTime.setHours(23, 59, 59, 999);
+        leadWhere.created_at[Op.lte] = endDateTime;
+      }
+    }
+
+    const newLeads = await Lead.count({
+      where: { ...leadWhere, lead_status: 'new' }
+    });
+
+    // Get total leads count (within date range)
+    const totalLeads = await Lead.count({ where: leadWhere });
 
     res.json({
       success: true,
       data: {
+        newLeads,
+        totalLeads,
         totalCalls,
         answeredCalls,
         avgDuration: Math.round(avgDuration?.dataValues?.avg_duration || 0),
@@ -104,7 +134,11 @@ exports.getCallsOverTime = async (req, res) => {
     if (start_date || end_date) {
       where.start_time = {};
       if (start_date) where.start_time[Op.gte] = new Date(start_date);
-      if (end_date) where.start_time[Op.lte] = new Date(end_date);
+      if (end_date) {
+        const endDateTime = new Date(end_date);
+        endDateTime.setHours(23, 59, 59, 999);
+        where.start_time[Op.lte] = endDateTime;
+      }
     }
 
     let dateFormat;
@@ -167,7 +201,11 @@ exports.getTeamPerformance = async (req, res) => {
     if (start_date || end_date) {
       where.start_time = {};
       if (start_date) where.start_time[Op.gte] = new Date(start_date);
-      if (end_date) where.start_time[Op.lte] = new Date(end_date);
+      if (end_date) {
+        const endDateTime = new Date(end_date);
+        endDateTime.setHours(23, 59, 59, 999);
+        where.start_time[Op.lte] = endDateTime;
+      }
     }
 
     const teamPerformance = await Call.findAll({
