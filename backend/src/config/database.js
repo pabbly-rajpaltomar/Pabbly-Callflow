@@ -1,5 +1,9 @@
 const { Sequelize } = require('sequelize');
+const dns = require('dns');
 require('dotenv').config();
+
+// Force IPv4 DNS resolution for Render.com compatibility with Neon
+dns.setDefaultResultOrder('ipv4first');
 
 let sequelize;
 
@@ -12,9 +16,7 @@ if (process.env.DATABASE_URL) {
       ssl: {
         require: true,
         rejectUnauthorized: false
-      },
-      // Force IPv4 for Render.com compatibility
-      family: 4
+      }
     },
     pool: {
       max: 5,
