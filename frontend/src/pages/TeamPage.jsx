@@ -172,9 +172,11 @@ const TeamPage = () => {
   };
 
   const handleViewStats = (userId) => {
+    if (!userId) return;
+    setMenuAnchor(null);
+    setCurrentUser(null);
     setSelectedUserId(userId);
     setOpenStatsModal(true);
-    handleMenuClose();
   };
 
   const handleResetPassword = async (userId) => {
@@ -570,6 +572,7 @@ const TeamPage = () => {
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <Avatar
+                              src={user.avatar_url}
                               sx={{
                                 width: 36,
                                 height: 36,
@@ -681,6 +684,7 @@ const TeamPage = () => {
                       <MoreIcon fontSize="small" />
                     </IconButton>
                     <Avatar
+                      src={user.avatar_url}
                       sx={{
                         width: 64,
                         height: 64,

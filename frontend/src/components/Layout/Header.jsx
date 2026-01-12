@@ -88,7 +88,10 @@ const Header = ({ onMenuClick }) => {
             onClick={handleMenu}
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+            <Avatar
+              src={user?.avatar_url}
+              sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
+            >
               {user?.full_name?.charAt(0).toUpperCase()}
             </Avatar>
           </IconButton>

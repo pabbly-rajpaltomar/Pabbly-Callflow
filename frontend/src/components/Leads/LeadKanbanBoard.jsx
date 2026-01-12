@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Paper,
@@ -35,7 +35,10 @@ import {
   Edit as EditIcon,
   Visibility as ViewIcon,
   AccessTime as TimeIcon,
-  Send as SendIcon
+  Send as SendIcon,
+  CallEnd as CallEndIcon,
+  PhoneInTalk as PhoneInTalkIcon,
+  RingVolume as RingVolumeIcon
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
 import leadService from '../../services/leadService';
@@ -63,6 +66,16 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
+  // Call dialog state
+  const [callDialogOpen, setCallDialogOpen] = useState(false);
+  const [callStatus, setCallStatus] = useState(''); // 'initiating', 'ringing', 'connected', 'ended'
+  const [callDuration, setCallDuration] = useState(0);
+  const [callingLead, setCallingLead] = useState(null);
+  const [activeCall, setActiveCall] = useState(null);
+  const callTimerRef = useRef(null);
+  const ringAudioRef = useRef(null);
+  const pollIntervalRef = useRef(null);
+
   const stages = [
     { id: 'new', label: 'New Leads', color: '#2196f3', icon: '📥' },
     { id: 'contacted', label: 'Contacted', color: '#ff9800', icon: '📞' },
@@ -84,6 +97,196 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
       console.error('Error fetching kanban data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Play/stop ringing sound based on call status
+  useEffect(() => {
+    const playRingtone = async () => {
+      if (callStatus === 'ringing') {
+        try {
+          if (!ringAudioRef.current) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            const playBeep = () => {
+              if (callStatus !== 'ringing') return;
+
+              const oscillator = audioContext.createOscillator();
+              const gainNode = audioContext.createGain();
+
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+
+              oscillator.frequency.value = 440;
+              oscillator.type = 'sine';
+
+              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+              oscillator.start(audioContext.currentTime);
+              oscillator.stop(audioContext.currentTime + 0.5);
+            };
+
+            ringAudioRef.current = {
+              intervalId: setInterval(() => {
+                playBeep();
+                setTimeout(playBeep, 200);
+              }, 2000),
+              audioContext: audioContext
+            };
+
+            playBeep();
+            setTimeout(playBeep, 200);
+          }
+        } catch (e) {
+          console.log('Audio play failed:', e);
+        }
+      } else {
+        if (ringAudioRef.current) {
+          if (ringAudioRef.current.intervalId) {
+            clearInterval(ringAudioRef.current.intervalId);
+          }
+          if (ringAudioRef.current.audioContext) {
+            ringAudioRef.current.audioContext.close();
+          }
+          ringAudioRef.current = null;
+        }
+      }
+    };
+
+    playRingtone();
+
+    return () => {
+      if (ringAudioRef.current) {
+        if (ringAudioRef.current.intervalId) {
+          clearInterval(ringAudioRef.current.intervalId);
+        }
+        if (ringAudioRef.current.audioContext) {
+          ringAudioRef.current.audioContext.close();
+        }
+        ringAudioRef.current = null;
+      }
+    };
+  }, [callStatus]);
+
+  // Call duration timer
+  useEffect(() => {
+    if (callStatus === 'connected') {
+      callTimerRef.current = setInterval(() => {
+        setCallDuration(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current);
+      }
+    }
+    return () => {
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current);
+      }
+    };
+  }, [callStatus]);
+
+  const formatCallDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const pollCallStatus = (callId) => {
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await callService.getCallById(callId);
+        const call = response.data.call;
+
+        if (call.outcome === 'answered') {
+          setCallStatus('connected');
+        } else if (call.outcome === 'no_answer' || call.outcome === 'busy' || call.end_time) {
+          setCallStatus('ended');
+          clearInterval(pollIntervalRef.current);
+          // Auto close dialog after 2 seconds when call ends
+          setTimeout(() => {
+            setCallDialogOpen(false);
+            setCallingLead(null);
+            setActiveCall(null);
+            setCallDuration(0);
+          }, 2000);
+          if (onRefresh) onRefresh();
+        }
+      } catch (error) {
+        console.error('Error polling call status:', error);
+      }
+    }, 2000);
+
+    // Stop polling after 2 minutes
+    setTimeout(() => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    }, 120000);
+  };
+
+  const handleInitiateCall = async (lead) => {
+    if (!lead.phone) {
+      setSnackbar({ open: true, message: 'No phone number available', severity: 'error' });
+      return;
+    }
+
+    setCallingLead(lead);
+    setCallDialogOpen(true);
+    setCallStatus('initiating');
+    setCallDuration(0);
+
+    try {
+      const response = await callService.initiateCall(lead.phone, null);
+
+      if (response.success) {
+        setActiveCall(response.data.call);
+        setCallStatus('ringing');
+
+        // Log activity
+        await leadService.logActivity(lead.id, {
+          activity_type: 'call',
+          description: `Initiated call to ${lead.phone} via Twilio`
+        });
+
+        // Poll for call status updates
+        pollCallStatus(response.data.call.id);
+      } else {
+        setCallStatus('ended');
+        setSnackbar({ open: true, message: response.message || 'Failed to initiate call', severity: 'error' });
+      }
+    } catch (error) {
+      console.error('Error initiating call:', error);
+      setCallStatus('ended');
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Failed to initiate call. Please check Twilio credentials.',
+        severity: 'error'
+      });
+    }
+  };
+
+  const handleEndCall = async () => {
+    try {
+      if (activeCall && activeCall.id) {
+        await callService.endCall(activeCall.id);
+      }
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    } catch (error) {
+      console.error('Error ending call:', error);
+    } finally {
+      setCallStatus('ended');
+      // Auto close after end
+      setTimeout(() => {
+        setCallDialogOpen(false);
+        setCallingLead(null);
+        setActiveCall(null);
+        setCallDuration(0);
+      }, 1000);
+      if (onRefresh) onRefresh();
     }
   };
 
@@ -241,29 +444,8 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
           description: `Scheduled Google Meet with ${lead.name}`
         });
       } else if (action === 'call') {
-        try {
-          // Initiate call via Twilio (pass null for contact_id since this is a lead)
-          const response = await callService.initiateCall(lead.phone, null);
-
-          setSnackbar({
-            open: true,
-            message: `Call initiated to ${lead.phone}. The call will connect shortly.`,
-            severity: 'success'
-          });
-
-          // Log activity
-          await leadService.logActivity(lead.id, {
-            activity_type: 'call',
-            description: `Initiated call to ${lead.phone} via Twilio`
-          });
-        } catch (error) {
-          console.error('Error initiating call:', error);
-          setSnackbar({
-            open: true,
-            message: error.response?.data?.message || 'Failed to initiate call. Please check Twilio credentials.',
-            severity: 'error'
-          });
-        }
+        // Use the new call dialog with status tracking
+        handleInitiateCall(lead);
       }
 
       if (onRefresh) onRefresh();
@@ -576,6 +758,119 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
             sx={{ borderRadius: 1.5 }}
           >
             {sendingEmail ? 'Sending...' : 'Send Email'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Active Call Status Dialog */}
+      <Dialog
+        open={callDialogOpen}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: callStatus === 'connected'
+              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+              : callStatus === 'ringing'
+              ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+              : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+          }
+        }}
+      >
+        <DialogContent sx={{ textAlign: 'center', py: 4 }}>
+          {/* Call Status Icon */}
+          <Box
+            sx={{
+              width: 100,
+              height: 100,
+              borderRadius: '50%',
+              bgcolor: 'rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 3,
+              animation: callStatus === 'ringing' ? 'pulse 1.5s infinite' : 'none',
+              '@keyframes pulse': {
+                '0%': { transform: 'scale(1)', opacity: 1 },
+                '50%': { transform: 'scale(1.1)', opacity: 0.7 },
+                '100%': { transform: 'scale(1)', opacity: 1 },
+              }
+            }}
+          >
+            {callStatus === 'initiating' && <PhoneIcon sx={{ fontSize: 50, color: 'white' }} />}
+            {callStatus === 'ringing' && <RingVolumeIcon sx={{ fontSize: 50, color: 'white' }} />}
+            {callStatus === 'connected' && <PhoneInTalkIcon sx={{ fontSize: 50, color: 'white' }} />}
+            {callStatus === 'ended' && <CallEndIcon sx={{ fontSize: 50, color: 'white' }} />}
+          </Box>
+
+          {/* Lead Name */}
+          {callingLead && (
+            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', mb: 1 }}>
+              {callingLead.name || 'Unknown Lead'}
+            </Typography>
+          )}
+
+          {/* Phone Number */}
+          <Typography variant="h5" sx={{ color: 'white', fontWeight: 600, mb: 1 }}>
+            {callingLead?.phone}
+          </Typography>
+
+          {/* Status Text */}
+          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', mb: 2 }}>
+            {callStatus === 'initiating' && 'Initiating call...'}
+            {callStatus === 'ringing' && 'Ringing...'}
+            {callStatus === 'connected' && 'Connected'}
+            {callStatus === 'ended' && 'Call Ended'}
+          </Typography>
+
+          {/* Duration (only when connected) */}
+          {(callStatus === 'connected' || callStatus === 'ended') && (
+            <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, fontFamily: 'monospace' }}>
+              {formatCallDuration(callDuration)}
+            </Typography>
+          )}
+
+          {/* Ringing indicator */}
+          {callStatus === 'ringing' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mt: 2 }}>
+              {[0, 1, 2].map((i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: 'white',
+                    animation: 'bounce 1.4s infinite ease-in-out both',
+                    animationDelay: `${i * 0.16}s`,
+                    '@keyframes bounce': {
+                      '0%, 80%, 100%': { transform: 'scale(0)' },
+                      '40%': { transform: 'scale(1)' },
+                    }
+                  }}
+                />
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            onClick={handleEndCall}
+            variant="contained"
+            sx={{
+              bgcolor: '#dc2626',
+              color: 'white',
+              borderRadius: 5,
+              px: 4,
+              py: 1.5,
+              '&:hover': { bgcolor: '#b91c1c' }
+            }}
+            startIcon={<CallEndIcon />}
+          >
+            {callStatus === 'ended' ? 'Close' : 'End Call'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -63,6 +63,7 @@ const UserStatsModal = ({ open, onClose, userId }) => {
 
   useEffect(() => {
     if (open && userId) {
+      setData(null);
       fetchUserStats();
     }
   }, [open, userId]);
@@ -71,7 +72,8 @@ const UserStatsModal = ({ open, onClose, userId }) => {
     try {
       setLoading(true);
       const response = await teamActivityService.getMemberDetailedStats(userId);
-      setData(response.data);
+      const actualData = response.data?.data || response.data;
+      setData(actualData);
     } catch (error) {
       console.error('Error fetching user stats:', error);
     } finally {
