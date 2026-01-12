@@ -37,11 +37,7 @@ import {
   PlayArrow as PlayIcon,
   CloudUpload as UploadIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
-  Settings as SettingsIcon,
-  MoreVert as MoreIcon,
   CheckCircle as CheckIcon,
-  PhoneCallback as CallbackIcon,
   PhoneMissed as MissedIcon,
   Timer as TimerIcon,
   CallEnd as CallEndIcon,
@@ -266,7 +262,8 @@ const CallsPage = () => {
   const fetchCalls = async () => {
     try {
       setLoading(true);
-      const response = await callService.getCalls();
+      // Fetch all calls (limit 1000) to ensure frontend filtering works correctly
+      const response = await callService.getCalls({ limit: 1000 });
       setCalls(response.data.calls);
       if (response.data.stats) {
         setStats(response.data.stats);
@@ -280,28 +277,35 @@ const CallsPage = () => {
   };
 
   // Filter calls based on tab and search
-  const filteredCalls = calls.filter(call => {
-    const matchesSearch = !searchTerm ||
-      call.phone_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      call.notes?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredCalls = React.useMemo(() => {
+    return calls.filter(call => {
+      const matchesSearch = !searchTerm ||
+        call.phone_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        call.notes?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (currentTab === 0) return true; // All
-    if (currentTab === 1) return call.outcome === 'answered'; // Answered
-    if (currentTab === 2) return call.outcome === 'no_answer' || call.outcome === 'missed'; // Missed
-    if (currentTab === 3) return call.call_status === 'callback'; // Callback
-    return true;
-  });
+      // Tab filtering - explicit checks for each tab
+      if (currentTab === 0) return true; // All calls
+      if (currentTab === 1) return call.outcome === 'answered'; // Only answered
+      if (currentTab === 2) {
+        // Missed = no_answer OR null/undefined (not answered)
+        return call.outcome === 'no_answer' || !call.outcome;
+      }
+      if (currentTab === 3) return call.call_status === 'callback'; // Callback
+      return true;
+    });
+  }, [calls, searchTerm, currentTab]);
 
   // Stats from API
   const totalCalls = stats.total;
   const outgoingCalls = stats.outgoing;
   const incomingCalls = stats.incoming;
-  const missedCalls = stats.missed;
   const answeredCalls = stats.answered || 0;
   const callbackCalls = stats.callback || 0;
   const noAnswerCalls = stats.noAnswer || 0;
+  // Missed = no_answer + null outcomes (from backend stats or calculate from calls)
+  const missedCalls = stats.missed || calls.filter(c => c.outcome === 'no_answer' || c.outcome === null || c.outcome === undefined).length;
   const avgDuration = stats.total > 0
     ? Math.round(stats.totalDuration / stats.total)
     : 0;
@@ -702,14 +706,7 @@ const CallsPage = () => {
               ),
             }}
           />
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button variant="text" startIcon={<FilterIcon />} sx={{ color: '#2196f3', textTransform: 'none', fontWeight: 500 }}>
-              Filters
-            </Button>
-            <IconButton size="small">
-              <SettingsIcon sx={{ color: '#6b7280' }} />
-            </IconButton>
-          </Box>
+{/* Filters removed - not functional */}
         </Box>
 
         {/* Table */}
@@ -731,7 +728,7 @@ const CallsPage = () => {
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Duration</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Outcome</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Recording</TableCell>
-                <TableCell></TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -841,9 +838,6 @@ const CallsPage = () => {
                               <DeleteIcon sx={{ color: '#f44336' }} fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <IconButton size="small">
-                            <MoreIcon sx={{ color: '#6b7280' }} fontSize="small" />
-                          </IconButton>
                         </Box>
                       </TableCell>
                     </TableRow>

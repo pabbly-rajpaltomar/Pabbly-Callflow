@@ -100,14 +100,15 @@ exports.getCalls = async (req, res) => {
       baseWhere.user_id = req.user.id;
     }
 
-    const [totalCount, outgoingCount, incomingCount, missedCount, answeredCount, callbackCount, noAnswerCount] = await Promise.all([
+    const [totalCount, outgoingCount, incomingCount, answeredCount, callbackCount, noAnswerCount, missedCount] = await Promise.all([
       Call.count({ where: baseWhere }),
       Call.count({ where: { ...baseWhere, call_type: 'outgoing' } }),
       Call.count({ where: { ...baseWhere, call_type: 'incoming' } }),
-      Call.count({ where: { ...baseWhere, call_type: 'missed' } }),
       Call.count({ where: { ...baseWhere, outcome: 'answered' } }),
       Call.count({ where: { ...baseWhere, call_status: 'callback' } }),
-      Call.count({ where: { ...baseWhere, outcome: 'no_answer' } })
+      Call.count({ where: { ...baseWhere, outcome: 'no_answer' } }),
+      // Missed = no_answer OR null outcome (unanswered calls)
+      Call.count({ where: { ...baseWhere, [Op.or]: [{ outcome: 'no_answer' }, { outcome: null }] } })
     ]);
 
     // Get total duration
@@ -127,10 +128,10 @@ exports.getCalls = async (req, res) => {
           total: totalCount,
           outgoing: outgoingCount,
           incoming: incomingCount,
-          missed: missedCount,
           answered: answeredCount,
           callback: callbackCount,
           noAnswer: noAnswerCount,
+          missed: missedCount, // no_answer + null outcomes
           totalDuration: totalDuration
         }
       }

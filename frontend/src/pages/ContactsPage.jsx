@@ -32,9 +32,6 @@ import {
 import {
   Add as AddIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
-  Settings as SettingsIcon,
-  MoreVert as MoreIcon,
   KeyboardArrowDown as ArrowDownIcon,
   Upload as UploadIcon,
   Edit as EditIcon,
@@ -501,22 +498,7 @@ const ContactsPage = () => {
               ),
             }}
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Button
-              startIcon={<FilterIcon sx={{ fontSize: 18 }} />}
-              sx={{
-                color: '#2196f3',
-                textTransform: 'none',
-                fontWeight: 500,
-                fontSize: 14,
-              }}
-            >
-              Filters
-            </Button>
-            <IconButton size="small" sx={{ color: '#6b7280' }}>
-              <SettingsIcon sx={{ fontSize: 20 }} />
-            </IconButton>
-          </Box>
+{/* Filters removed - not functional */}
         </Box>
 
         {/* Table */}
@@ -661,9 +643,6 @@ const ContactsPage = () => {
                           </Tooltip>
                           <IconButton size="small" sx={{ color: '#9ca3af' }}>
                             <ArrowDownIcon sx={{ fontSize: 20 }} />
-                          </IconButton>
-                          <IconButton size="small" sx={{ color: '#9ca3af' }}>
-                            <MoreIcon sx={{ fontSize: 20 }} />
                           </IconButton>
                         </Box>
                       </TableCell>

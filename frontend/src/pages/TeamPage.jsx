@@ -55,7 +55,6 @@ import {
   AdminPanelSettings as AdminIcon,
   Person as PersonIcon,
   SupervisorAccount as ManagerIcon,
-  FilterList as FilterIcon,
   Edit as EditIcon,
   Block as BlockIcon,
   CheckCircle as ActiveIcon,

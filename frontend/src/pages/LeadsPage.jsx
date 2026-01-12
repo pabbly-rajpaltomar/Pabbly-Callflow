@@ -35,16 +35,12 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Webhook as WebhookIcon,
-  SwapHoriz as ConvertIcon,
   Search as SearchIcon,
   ContentCopy as CopyIcon,
   CheckCircle as CheckIcon,
   Upload as BulkIcon,
   ViewKanban as KanbanIcon,
   TableRows as TableIcon,
-  FilterList as FilterIcon,
-  Settings as SettingsIcon,
-  MoreVert as MoreIcon,
   TrendingUp as TrendingUpIcon,
   People as PeopleIcon,
   PersonAdd as PersonAddIcon,
@@ -621,14 +617,7 @@ const LeadsPage = () => {
                 ),
               }}
             />
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button variant="text" startIcon={<FilterIcon />} sx={{ color: '#2196f3', textTransform: 'none', fontWeight: 500 }}>
-                Filters
-              </Button>
-              <IconButton size="small">
-                <SettingsIcon sx={{ color: '#6b7280' }} />
-              </IconButton>
-            </Box>
+{/* Filters removed - not functional */}
           </Box>
 
           {/* Table */}
