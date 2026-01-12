@@ -12,7 +12,9 @@ if (process.env.DATABASE_URL) {
       ssl: {
         require: true,
         rejectUnauthorized: false
-      }
+      },
+      // Force IPv4 for Render.com compatibility
+      family: 4
     },
     pool: {
       max: 5,
