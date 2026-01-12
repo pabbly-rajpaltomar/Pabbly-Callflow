@@ -55,8 +55,8 @@ const Header = ({ onMenuClick }) => {
     <AppBar
       position="fixed"
       sx={{
-        width: { sm: `calc(100% - 260px)` },
-        ml: { sm: '260px' },
+        width: { sm: `calc(100% - 200px)` },
+        ml: { sm: '200px' },
         bgcolor: 'white',
         color: 'text.primary',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',

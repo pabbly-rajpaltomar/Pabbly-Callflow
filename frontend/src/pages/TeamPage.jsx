@@ -436,6 +436,13 @@ const TeamPage = () => {
 
       {/* Table Section */}
       <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        {/* Table Header */}
+        <Box sx={{ p: 2, borderBottom: '1px solid #e5e7eb' }}>
+          <Typography variant="h6" fontWeight={600}>
+            Team Members
+          </Typography>
+        </Box>
+
         {/* Tabs */}
         <Box sx={{ borderBottom: '1px solid #e5e7eb' }}>
           <Tabs
@@ -443,21 +450,15 @@ const TeamPage = () => {
             onChange={(e, newValue) => { setCurrentTab(newValue); setPage(0); }}
             sx={{
               px: 2,
-              '& .MuiTab-root': {
-                textTransform: 'none',
-                fontWeight: 500,
-                fontSize: 14,
-                minHeight: 48,
-                color: '#6b7280',
-                '&.Mui-selected': { color: '#2196f3' }
-              },
-              '& .MuiTabs-indicator': { bgcolor: '#2196f3' }
+              '& .MuiTab-root': { textTransform: 'none', minHeight: 48, fontWeight: 500 },
+              '& .Mui-selected': { color: '#1a1a1a' },
+              '& .MuiTabs-indicator': { backgroundColor: '#1a1a1a' }
             }}
           >
-            <Tab label={`All Members (${totalMembers})`} />
-            <Tab label={`Admins (${adminCount})`} />
-            <Tab label={`Managers (${managerCount})`} />
-            <Tab label={`Sales Reps (${salesRepCount})`} />
+            <Tab label={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><span>All Members</span><Chip label={totalMembers} size="small" sx={{ height: 20, fontSize: '0.75rem', bgcolor: '#3b82f6', color: 'white' }} /></Box>} />
+            <Tab label={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><span>Admins</span><Chip label={adminCount} size="small" sx={{ height: 20, fontSize: '0.75rem', bgcolor: '#ef4444', color: 'white' }} /></Box>} />
+            <Tab label={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><span>Managers</span><Chip label={managerCount} size="small" sx={{ height: 20, fontSize: '0.75rem', bgcolor: '#f59e0b', color: 'white' }} /></Box>} />
+            <Tab label={<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><span>Sales Reps</span><Chip label={salesRepCount} size="small" sx={{ height: 20, fontSize: '0.75rem', bgcolor: '#10b981', color: 'white' }} /></Box>} />
           </Tabs>
         </Box>
 
@@ -489,7 +490,12 @@ const TeamPage = () => {
             size="small"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
+            displayEmpty
             sx={{ minWidth: 130, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+            SelectProps={{
+              displayEmpty: true,
+              renderValue: (value) => value === '' ? 'All Status' : (value === 'true' ? 'Active' : 'Inactive')
+            }}
           >
             <MenuItem value="">All Status</MenuItem>
             <MenuItem value="true">Active</MenuItem>

@@ -26,7 +26,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useThemeMode } from '../../context/ThemeContext';
 
-const drawerWidth = 260;
+const drawerWidth = 200;
 
 const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
   const navigate = useNavigate();

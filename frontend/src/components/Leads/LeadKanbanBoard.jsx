@@ -456,11 +456,16 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
         sx={{
           mb: 1.5,
           cursor: 'grab',
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
           '&:active': { cursor: 'grabbing' },
           '&:hover': {
-            boxShadow: 3,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             transform: 'translateY(-2px)',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            borderColor: '#d1d5db'
           },
           opacity: draggedLead?.id === lead.id ? 0.5 : 1
         }}
@@ -643,33 +648,43 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
 
   return (
     <>
-      <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2, minHeight: '70vh' }}>
+      <Box sx={{
+        display: 'flex',
+        gap: 1.5,
+        overflowX: 'auto',
+        pb: 2,
+        minHeight: '70vh',
+      }}>
         {stages.map(stage => (
           <Paper
             key={stage.id}
             sx={{
-              minWidth: 300,
-              maxWidth: 300,
-              bgcolor: 'grey.50',
-              p: 2
+              minWidth: 0,
+              flex: 1,
+              bgcolor: '#f8fafc',
+              p: 1.5,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0'
             }}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, stage.id)}
           >
             {/* Column Header */}
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="h6" sx={{ fontSize: '1rem' }}>
+                <Typography variant="subtitle1" sx={{ fontSize: '0.9rem', fontWeight: 600 }}>
                   {stage.icon} {stage.label}
                 </Typography>
               </Box>
-              <Badge
-                badgeContent={kanbanData[stage.id]?.length || 0}
-                color="primary"
+              <Chip
+                label={kanbanData[stage.id]?.length || 0}
+                size="small"
                 sx={{
-                  '& .MuiBadge-badge': {
-                    bgcolor: stage.color
-                  }
+                  bgcolor: stage.color,
+                  color: 'white',
+                  fontWeight: 600,
+                  minWidth: 28,
+                  height: 24
                 }}
               />
             </Box>
