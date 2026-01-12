@@ -330,31 +330,47 @@ exports.initiateCall = async (req, res) => {
       });
     }
 
+    // Format phone number to E.164 format for Twilio
+    let formattedPhone = phone_number.trim();
+
+    // Remove spaces, dashes, and parentheses
+    formattedPhone = formattedPhone.replace(/[\s\-\(\)]/g, '');
+
+    // Add +91 if it's an Indian number without country code
+    if (!formattedPhone.startsWith('+')) {
+      if (formattedPhone.startsWith('91') && formattedPhone.length === 12) {
+        formattedPhone = '+' + formattedPhone;
+      } else if (formattedPhone.length === 10) {
+        formattedPhone = '+91' + formattedPhone;
+      } else {
+        formattedPhone = '+' + formattedPhone;
+      }
+    }
+
     // Create call record in database first
     const call = await Call.create({
       contact_id,
       user_id: req.user.id,
-      phone_number,
+      phone_number: formattedPhone,
       call_type: 'outgoing',
-      call_status: 'initiated',
+      call_status: 'pending',
       start_time: new Date()
     });
 
     // Initiate call via Twilio
     try {
-      const callbackUrl = `${process.env.CORS_ORIGIN || 'http://localhost:3000'}/api/calls/webhook/${call.id}`;
+      const callbackUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5000'}/api/calls/webhook/${call.id}`;
 
       const twilioCall = await twilioService.makeCall(
-        phone_number,
+        formattedPhone,
         null,
         callbackUrl,
         true // Enable recording
       );
 
-      // Update call with Twilio SID
+      // Update call with Twilio SID - keep call_status as 'pending' (sales status)
       await call.update({
-        twilio_call_sid: twilioCall.callSid,
-        call_status: 'ringing'
+        twilio_call_sid: twilioCall.callSid
       });
 
       const callWithDetails = await Call.findByPk(call.id, {
@@ -373,10 +389,11 @@ exports.initiateCall = async (req, res) => {
         }
       });
     } catch (twilioError) {
-      // If Twilio fails, update call status to failed
+      // If Twilio fails, update outcome to show call failed
       await call.update({
-        call_status: 'failed',
-        end_time: new Date()
+        outcome: 'no_answer',
+        end_time: new Date(),
+        notes: `Twilio error: ${twilioError.message}`
       });
 
       throw twilioError;
@@ -407,30 +424,37 @@ exports.twilioWebhook = async (req, res) => {
 
     const updates = {};
 
-    // Map Twilio status to our status
+    // Map Twilio status to our outcome field (call_status is for sales status)
     switch (CallStatus) {
       case 'ringing':
-        updates.call_status = 'ringing';
+        // Call is ringing, no update needed
         break;
       case 'in-progress':
-        updates.call_status = 'in_progress';
         updates.outcome = 'answered';
         break;
       case 'completed':
-        updates.call_status = 'completed';
         updates.end_time = new Date();
         if (CallDuration) {
           updates.duration = parseInt(CallDuration);
         }
+        // If no outcome set yet, mark as answered
+        if (!call.outcome) {
+          updates.outcome = 'answered';
+        }
         break;
       case 'busy':
+        updates.outcome = 'busy';
+        updates.call_type = 'missed';
+        updates.end_time = new Date();
+        break;
       case 'no-answer':
-        updates.call_status = 'completed';
         updates.outcome = 'no_answer';
+        updates.call_type = 'missed';
         updates.end_time = new Date();
         break;
       case 'failed':
-        updates.call_status = 'failed';
+        updates.outcome = 'no_answer';
+        updates.call_type = 'missed';
         updates.end_time = new Date();
         break;
     }

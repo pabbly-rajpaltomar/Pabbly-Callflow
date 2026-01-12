@@ -282,14 +282,33 @@ const CallsPage = () => {
         <Typography variant="h5" fontWeight={600} color="#111827">
           Calls
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-          sx={{ borderRadius: 1.5, textTransform: 'none' }}
-        >
-          Add Call
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1.5 }}>
+          <Button
+            variant="outlined"
+            startIcon={<PhoneIcon />}
+            onClick={() => handleOpenDialog()}
+            sx={{
+              borderRadius: 1.5,
+              textTransform: 'none',
+              borderColor: '#10b981',
+              color: '#10b981',
+              '&:hover': {
+                borderColor: '#059669',
+                bgcolor: '#d1fae5'
+              }
+            }}
+          >
+            Make Call
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+            sx={{ borderRadius: 1.5, textTransform: 'none' }}
+          >
+            Add Call Log
+          </Button>
+        </Box>
       </Box>
 
       {/* Alerts */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -49,8 +50,11 @@ import {
   PersonAdd as PersonAddIcon,
   Phone as PhoneIcon,
   Cancel as CancelIcon,
+  Call as CallIcon,
+  Visibility as ViewIcon,
 } from '@mui/icons-material';
 import leadService from '../services/leadService';
+import callService from '../services/callService';
 import { useAuth } from '../context/AuthContext';
 import BulkLeadImport from '../components/Leads/BulkLeadImport';
 import LeadKanbanBoard from '../components/Leads/LeadKanbanBoard';
@@ -58,6 +62,7 @@ import { format } from 'date-fns';
 
 const LeadsPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // State
   const [leads, setLeads] = useState([]);
@@ -81,6 +86,9 @@ const LeadsPage = () => {
   const [editingLead, setEditingLead] = useState(null);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [callDialog, setCallDialog] = useState(false);
+  const [callingLead, setCallingLead] = useState(null);
+  const [calling, setCalling] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -213,6 +221,32 @@ const LeadsPage = () => {
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to convert lead');
       }
+    }
+  };
+
+  // Handle initiate call
+  const handleInitiateCall = (lead) => {
+    setCallingLead(lead);
+    setCallDialog(true);
+  };
+
+  const handleCallNow = async () => {
+    if (!callingLead || !callingLead.phone) {
+      setError('Invalid phone number');
+      return;
+    }
+
+    try {
+      setCalling(true);
+      const response = await callService.initiateCall(callingLead.phone, null);
+      setSuccess(`Call initiated to ${callingLead.name || callingLead.phone}!`);
+      setCallDialog(false);
+      setCallingLead(null);
+    } catch (error) {
+      console.error('Error initiating call:', error);
+      setError(error.response?.data?.message || 'Failed to initiate call. Please check Twilio configuration.');
+    } finally {
+      setCalling(false);
     }
   };
 
@@ -666,6 +700,30 @@ const LeadsPage = () => {
                         </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Tooltip title="View Details">
+                              <IconButton
+                                size="small"
+                                onClick={() => navigate(`/leads/${lead.id}`)}
+                                sx={{
+                                  color: '#3b82f6',
+                                  '&:hover': { bgcolor: '#dbeafe' }
+                                }}
+                              >
+                                <ViewIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Call Now">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleInitiateCall(lead)}
+                                sx={{
+                                  color: '#10b981',
+                                  '&:hover': { bgcolor: '#d1fae5' }
+                                }}
+                              >
+                                <PhoneIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
                             {lead.lead_status !== 'converted' && (
                               <>
                                 <Tooltip title="Convert to Contact">
@@ -778,6 +836,112 @@ const LeadsPage = () => {
         onClose={() => setOpenBulkDialog(false)}
         onSuccess={() => { setSuccess('Leads imported successfully'); fetchLeads(); }}
       />
+
+      {/* Call Confirmation Dialog */}
+      <Dialog
+        open={callDialog}
+        onClose={() => !calling && setCallDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ borderBottom: '1px solid #e5e7eb' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box
+              sx={{
+                width: 50,
+                height: 50,
+                borderRadius: '50%',
+                bgcolor: '#d1fae5',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CallIcon sx={{ color: '#10b981', fontSize: 24 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={600}>
+                Initiate Call
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                via Twilio Voice
+              </Typography>
+            </Box>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          {callingLead && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              <Box
+                sx={{
+                  p: 2.5,
+                  borderRadius: 2,
+                  bgcolor: '#f9fafb',
+                  border: '1px solid #e5e7eb',
+                }}
+              >
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Calling to:
+                </Typography>
+                <Typography variant="h6" fontWeight={600} color="#111827">
+                  {callingLead.name || 'Unknown Lead'}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                  <PhoneIcon sx={{ color: '#10b981', fontSize: 18 }} />
+                  <Typography variant="body1" color="#10b981" fontWeight={500}>
+                    +91 {callingLead.phone}
+                  </Typography>
+                </Box>
+                {callingLead.company && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                    Company: {callingLead.company}
+                  </Typography>
+                )}
+              </Box>
+
+              <Alert severity="info" sx={{ borderRadius: 1.5 }}>
+                <Typography variant="body2">
+                  The call will be initiated through Twilio. Make sure your Twilio configuration is set up correctly.
+                </Typography>
+              </Alert>
+
+              {calling && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: 'center', p: 2 }}>
+                  <CircularProgress size={24} sx={{ color: '#10b981' }} />
+                  <Typography variant="body2" color="text.secondary">
+                    Connecting call...
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, borderTop: '1px solid #e5e7eb', gap: 1 }}>
+          <Button
+            onClick={() => {
+              setCallDialog(false);
+              setCallingLead(null);
+            }}
+            disabled={calling}
+            sx={{ borderRadius: 1.5, color: '#6b7280' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCallNow}
+            variant="contained"
+            disabled={calling}
+            startIcon={calling ? <CircularProgress size={18} color="inherit" /> : <CallIcon />}
+            sx={{
+              borderRadius: 1.5,
+              bgcolor: '#10b981',
+              '&:hover': { bgcolor: '#059669' },
+            }}
+          >
+            {calling ? 'Calling...' : 'Call Now'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

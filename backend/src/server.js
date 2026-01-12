@@ -69,6 +69,11 @@ const startServer = async () => {
       console.log(`✓ Server running on port ${config.port}`);
       console.log(`✓ Environment: ${config.nodeEnv}`);
       console.log(`✓ API available at: http://localhost:${config.port}`);
+
+      // Start automatic recording sync (every 5 minutes)
+      const { startAutoSync } = require('./services/recordingSyncService');
+      startAutoSync();
+      console.log('✓ Automatic recording sync service started');
     });
   } catch (error) {
     console.error('Failed to start server:', error);

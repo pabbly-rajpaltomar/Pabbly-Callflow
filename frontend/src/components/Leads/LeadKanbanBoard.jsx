@@ -242,8 +242,8 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
         });
       } else if (action === 'call') {
         try {
-          // Initiate call via Twilio
-          const response = await callService.initiateCall(lead.phone, lead.id);
+          // Initiate call via Twilio (pass null for contact_id since this is a lead)
+          const response = await callService.initiateCall(lead.phone, null);
 
           setSnackbar({
             open: true,

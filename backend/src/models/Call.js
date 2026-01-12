@@ -64,6 +64,11 @@ const Call = sequelize.define('Call', {
       key: 'id'
     }
   },
+  recording_url: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    comment: 'Direct URL to Twilio recording'
+  },
   twilio_call_sid: {
     type: DataTypes.STRING(100),
     allowNull: true,
