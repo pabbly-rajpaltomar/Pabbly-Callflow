@@ -400,9 +400,18 @@ exports.initiateCall = async (req, res) => {
     }
   } catch (error) {
     console.error('Initiate call error:', error);
+
+    // Provide helpful error message for Twilio trial account
+    let userMessage = 'Failed to initiate call.';
+    if (error.message && error.message.includes('unverified')) {
+      userMessage = '⚠️ Twilio Trial Account: This number is unverified. Please verify the number in Twilio Console or upgrade to a paid account to call any number.';
+    } else if (error.message && error.message.includes('credentials')) {
+      userMessage = 'Twilio credentials are invalid. Please check your TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN in .env file.';
+    }
+
     res.status(500).json({
       success: false,
-      message: 'Failed to initiate call.',
+      message: userMessage,
       error: error.message
     });
   }
