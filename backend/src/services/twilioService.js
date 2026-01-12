@@ -25,10 +25,14 @@ class TwilioService {
         throw new Error('Twilio client not initialized. Check your credentials.');
       }
 
+      // Use TwiML to dial the actual number (real call with ringing)
+      const baseUrl = process.env.WEBHOOK_BASE_URL || 'http://localhost:5000';
+      const twimlUrl = `${baseUrl}/api/calls/twiml?to=${encodeURIComponent(to)}`;
+
       const callParams = {
         to: to,
         from: from || this.twilioNumber,
-        url: `http://demo.twilio.com/docs/voice.xml`, // Default TwiML
+        url: twimlUrl, // Our custom TwiML that dials the real number
         statusCallback: callbackUrl,
         statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed'],
         record: record,

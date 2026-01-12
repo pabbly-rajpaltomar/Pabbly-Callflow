@@ -25,7 +25,6 @@ import {
   CalendarMonth as CalendarIcon,
   PersonAdd as LeadsIcon
 } from '@mui/icons-material';
-import CallsChart from '../components/Dashboard/CallsChart';
 import analyticsService from '../services/analyticsService';
 import { useAuth } from '../context/AuthContext';
 import { format } from 'date-fns';
@@ -34,7 +33,6 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
-  const [callsOverTime, setCallsOverTime] = useState([]);
   const [teamPerformance, setTeamPerformance] = useState([]);
   const [dateRange, setDateRange] = useState({
     start_date: format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
@@ -51,9 +49,6 @@ const Dashboard = () => {
 
       const statsData = await analyticsService.getDashboardStats(dateRange);
       setStats(statsData.data);
-
-      const callsData = await analyticsService.getCallsOverTime({ ...dateRange, interval: 'day' });
-      setCallsOverTime(callsData.data.callsOverTime);
 
       if (user.role !== 'sales_rep') {
         const teamData = await analyticsService.getTeamPerformance(dateRange);
@@ -426,11 +421,6 @@ const Dashboard = () => {
         </Paper>
       )}
 
-      {/* Calls Chart */}
-      <Paper sx={{ p: 3, borderRadius: 2, border: '1px solid #e5e7eb' }}>
-        <Typography fontSize={16} fontWeight={600} color="#111827" mb={2}>Calls Over Time</Typography>
-        <CallsChart data={callsOverTime} />
-      </Paper>
     </Box>
   );
 };

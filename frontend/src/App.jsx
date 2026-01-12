@@ -1,9 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
-import theme from './theme/theme';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import Login from './components/Auth/Login';
@@ -12,7 +10,6 @@ import Dashboard from './pages/Dashboard';
 import LeadsPage from './pages/LeadsPage';
 import LeadDetailPage from './pages/LeadDetailPage';
 import CallsPage from './pages/CallsPage';
-import ContactsPage from './pages/ContactsPage';
 import TeamPage from './pages/TeamPage';
 import ReportsPage from './pages/ReportsPage';
 import ProfilePage from './pages/ProfilePage';
@@ -89,14 +86,6 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/contacts"
-        element={
-          <PrivateRoute>
-            <ContactsPage />
-          </PrivateRoute>
-        }
-      />
-      <Route
         path="/team"
         element={
           <PrivateRoute>
@@ -127,8 +116,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeProvider>
       <SnackbarProvider maxSnack={3}>
         <Router>
           <AuthProvider>

@@ -4,7 +4,13 @@ const { User } = require('../models');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    // Support token from Authorization header OR query parameter (for audio streaming)
+    let token = req.headers.authorization?.split(' ')[1];
+
+    // Fallback to query parameter for direct browser access (e.g., audio playback)
+    if (!token && req.query.token) {
+      token = req.query.token;
+    }
 
     if (!token) {
       return res.status(401).json({

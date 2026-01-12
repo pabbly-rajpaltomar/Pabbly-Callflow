@@ -100,13 +100,14 @@ exports.getCalls = async (req, res) => {
       baseWhere.user_id = req.user.id;
     }
 
-    const [totalCount, outgoingCount, incomingCount, missedCount, answeredCount, callbackCount] = await Promise.all([
+    const [totalCount, outgoingCount, incomingCount, missedCount, answeredCount, callbackCount, noAnswerCount] = await Promise.all([
       Call.count({ where: baseWhere }),
       Call.count({ where: { ...baseWhere, call_type: 'outgoing' } }),
       Call.count({ where: { ...baseWhere, call_type: 'incoming' } }),
       Call.count({ where: { ...baseWhere, call_type: 'missed' } }),
       Call.count({ where: { ...baseWhere, outcome: 'answered' } }),
-      Call.count({ where: { ...baseWhere, call_status: 'callback' } })
+      Call.count({ where: { ...baseWhere, call_status: 'callback' } }),
+      Call.count({ where: { ...baseWhere, outcome: 'no_answer' } })
     ]);
 
     // Get total duration
@@ -129,6 +130,7 @@ exports.getCalls = async (req, res) => {
           missed: missedCount,
           answered: answeredCount,
           callback: callbackCount,
+          noAnswer: noAnswerCount,
           totalDuration: totalDuration
         }
       }
@@ -359,7 +361,8 @@ exports.initiateCall = async (req, res) => {
 
     // Initiate call via Twilio
     try {
-      const callbackUrl = `${process.env.CORS_ORIGIN || 'http://localhost:5000'}/api/calls/webhook/${call.id}`;
+      const baseUrl = process.env.WEBHOOK_BASE_URL || 'http://localhost:5000';
+      const callbackUrl = `${baseUrl}/api/calls/webhook/${call.id}`;
 
       const twilioCall = await twilioService.makeCall(
         formattedPhone,
@@ -412,6 +415,59 @@ exports.initiateCall = async (req, res) => {
     res.status(500).json({
       success: false,
       message: userMessage,
+      error: error.message
+    });
+  }
+};
+
+/**
+ * End an active call
+ */
+exports.endCall = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const call = await Call.findByPk(id);
+
+    if (!call) {
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found.'
+      });
+    }
+
+    // Check authorization
+    if (req.user.role === 'sales_rep' && call.user_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied.'
+      });
+    }
+
+    // End call via Twilio if we have the call SID
+    if (call.twilio_call_sid) {
+      try {
+        await twilioService.endCall(call.twilio_call_sid);
+      } catch (twilioError) {
+        console.log('Twilio end call error (call may have already ended):', twilioError.message);
+      }
+    }
+
+    // Update call record
+    await call.update({
+      end_time: new Date(),
+      outcome: call.outcome || 'no_answer'
+    });
+
+    res.json({
+      success: true,
+      message: 'Call ended successfully.'
+    });
+  } catch (error) {
+    console.error('End call error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to end call.',
       error: error.message
     });
   }
@@ -483,6 +539,162 @@ exports.twilioWebhook = async (req, res) => {
     res.status(200).send('OK');
   } catch (error) {
     console.error('Twilio webhook error:', error);
+    res.status(500).send('Error');
+  }
+};
+
+/**
+ * TwiML endpoint to dial the actual phone number
+ * This makes the call actually ring on the recipient's phone
+ */
+exports.getTwiml = async (req, res) => {
+  try {
+    const { to } = req.query;
+
+    if (!to) {
+      return res.status(400).send('Phone number required');
+    }
+
+    // Generate TwiML that dials the actual number
+    const VoiceResponse = require('twilio').twiml.VoiceResponse;
+    const twiml = new VoiceResponse();
+
+    // Add a brief message before connecting (optional)
+    // twiml.say({ voice: 'alice' }, 'Connecting your call...');
+
+    // Dial the actual number - this makes the phone ring
+    const dial = twiml.dial({
+      callerId: process.env.TWILIO_PHONE_NUMBER,
+      record: 'record-from-answer-dual',  // Record both sides
+      timeout: 30,  // Ring for 30 seconds before giving up
+      action: '/api/calls/dial-complete'  // Handle call completion
+    });
+
+    dial.number(to);
+
+    res.type('text/xml');
+    res.send(twiml.toString());
+  } catch (error) {
+    console.error('TwiML generation error:', error);
+    res.status(500).send('Error generating TwiML');
+  }
+};
+
+/**
+ * Handle dial completion (optional, for logging)
+ */
+exports.dialComplete = async (req, res) => {
+  try {
+    console.log('Dial completed:', req.body);
+
+    const VoiceResponse = require('twilio').twiml.VoiceResponse;
+    const twiml = new VoiceResponse();
+
+    // Call ended, just send empty TwiML
+    res.type('text/xml');
+    res.send(twiml.toString());
+  } catch (error) {
+    console.error('Dial complete error:', error);
+    res.status(500).send('Error');
+  }
+};
+
+/**
+ * Proxy endpoint to stream recording (handles Twilio authentication)
+ */
+exports.getRecordingAudio = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const call = await Call.findByPk(id);
+
+    if (!call) {
+      return res.status(404).json({
+        success: false,
+        message: 'Call not found.'
+      });
+    }
+
+    if (req.user.role === 'sales_rep' && call.user_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied.'
+      });
+    }
+
+    if (!call.recording_url) {
+      return res.status(404).json({
+        success: false,
+        message: 'No recording available for this call.'
+      });
+    }
+
+    // Fetch recording from Twilio with authentication
+    const axios = require('axios');
+    const response = await axios({
+      method: 'get',
+      url: call.recording_url,
+      auth: {
+        username: process.env.TWILIO_ACCOUNT_SID,
+        password: process.env.TWILIO_AUTH_TOKEN
+      },
+      responseType: 'stream'
+    });
+
+    // Set appropriate headers for audio streaming
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Disposition', `inline; filename="recording-${id}.mp3"`);
+
+    // Pipe the audio stream to response
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Get recording audio error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch recording.',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Webhook to receive recording status updates from Twilio
+ */
+exports.twilioRecordingWebhook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { RecordingUrl, RecordingSid, RecordingDuration, RecordingStatus } = req.body;
+
+    console.log('Recording webhook received:', { id, RecordingUrl, RecordingSid, RecordingStatus });
+
+    const call = await Call.findByPk(id);
+
+    if (!call) {
+      return res.status(404).send('Call not found');
+    }
+
+    if (RecordingStatus === 'completed' && RecordingUrl) {
+      // Save recording URL with .mp3 extension for playback
+      const recordingUrlMp3 = `${RecordingUrl}.mp3`;
+
+      await call.update({
+        recording_url: recordingUrlMp3
+      });
+
+      // Also save to CallRecording table
+      await CallRecording.create({
+        call_id: id,
+        file_path: recordingUrlMp3,
+        recording_sid: RecordingSid,
+        duration: RecordingDuration ? parseInt(RecordingDuration) : null
+      });
+
+      console.log('Recording saved for call:', id, recordingUrlMp3);
+    }
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('Twilio recording webhook error:', error);
     res.status(500).send('Error');
   }
 };

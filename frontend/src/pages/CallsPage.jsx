@@ -44,6 +44,9 @@ import {
   PhoneCallback as CallbackIcon,
   PhoneMissed as MissedIcon,
   Timer as TimerIcon,
+  CallEnd as CallEndIcon,
+  PhoneInTalk as PhoneInTalkIcon,
+  RingVolume as RingVolumeIcon,
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import callService from '../services/callService';
@@ -75,9 +78,190 @@ const CallsPage = () => {
   const [selected, setSelected] = useState([]);
   const [stats, setStats] = useState({ total: 0, outgoing: 0, incoming: 0, missed: 0, totalDuration: 0 });
 
+  // Active call state
+  const [activeCall, setActiveCall] = useState(null);
+  const [callStatus, setCallStatus] = useState(''); // 'initiating', 'ringing', 'connected', 'ended'
+  const [callDuration, setCallDuration] = useState(0);
+  const [callDialogOpen, setCallDialogOpen] = useState(false);
+  const [makeCallDialogOpen, setMakeCallDialogOpen] = useState(false);
+  const [callPhoneNumber, setCallPhoneNumber] = useState('');
+  const callTimerRef = React.useRef(null);
+  const ringAudioRef = React.useRef(null);
+
   useEffect(() => {
     fetchCalls();
   }, []);
+
+  // Play/stop ringing sound based on call status
+  useEffect(() => {
+    const playRingtone = async () => {
+      if (callStatus === 'ringing') {
+        try {
+          // Create audio with a working ringtone URL
+          if (!ringAudioRef.current) {
+            // Using a data URI for a simple ringtone beep pattern
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+            const playBeep = () => {
+              if (callStatus !== 'ringing') return;
+
+              const oscillator = audioContext.createOscillator();
+              const gainNode = audioContext.createGain();
+
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+
+              oscillator.frequency.value = 440; // Hz - A4 note
+              oscillator.type = 'sine';
+
+              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+              oscillator.start(audioContext.currentTime);
+              oscillator.stop(audioContext.currentTime + 0.5);
+            };
+
+            // Play beep pattern: beep-beep, pause, beep-beep
+            ringAudioRef.current = {
+              intervalId: setInterval(() => {
+                playBeep();
+                setTimeout(playBeep, 200);
+              }, 2000),
+              audioContext: audioContext
+            };
+
+            // Play first beep immediately
+            playBeep();
+            setTimeout(playBeep, 200);
+          }
+        } catch (e) {
+          console.log('Audio play failed:', e);
+        }
+      } else {
+        // Stop ringing sound
+        if (ringAudioRef.current) {
+          if (ringAudioRef.current.intervalId) {
+            clearInterval(ringAudioRef.current.intervalId);
+          }
+          if (ringAudioRef.current.audioContext) {
+            ringAudioRef.current.audioContext.close();
+          }
+          ringAudioRef.current = null;
+        }
+      }
+    };
+
+    playRingtone();
+
+    return () => {
+      if (ringAudioRef.current) {
+        if (ringAudioRef.current.intervalId) {
+          clearInterval(ringAudioRef.current.intervalId);
+        }
+        if (ringAudioRef.current.audioContext) {
+          ringAudioRef.current.audioContext.close();
+        }
+        ringAudioRef.current = null;
+      }
+    };
+  }, [callStatus]);
+
+  // Call duration timer
+  useEffect(() => {
+    if (callStatus === 'connected') {
+      callTimerRef.current = setInterval(() => {
+        setCallDuration(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current);
+      }
+    }
+    return () => {
+      if (callTimerRef.current) {
+        clearInterval(callTimerRef.current);
+      }
+    };
+  }, [callStatus]);
+
+  const formatCallDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleMakeCall = async () => {
+    if (!callPhoneNumber) {
+      setError('Please enter a phone number');
+      return;
+    }
+
+    try {
+      setCallDialogOpen(true);
+      setCallStatus('initiating');
+      setCallDuration(0);
+      setMakeCallDialogOpen(false);
+
+      const response = await callService.initiateCall(callPhoneNumber);
+
+      if (response.success) {
+        setActiveCall(response.data.call);
+        setCallStatus('ringing');
+        setSuccess('Call initiated! Phone is ringing...');
+
+        // Poll for call status updates
+        pollCallStatus(response.data.call.id);
+      } else {
+        setCallStatus('ended');
+        setError(response.message || 'Failed to initiate call');
+      }
+    } catch (error) {
+      console.error('Error making call:', error);
+      setCallStatus('ended');
+      setError(error.response?.data?.message || 'Failed to initiate call');
+    }
+  };
+
+  const pollCallStatus = (callId) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await callService.getCallById(callId);
+        const call = response.data.call;
+
+        if (call.outcome === 'answered') {
+          setCallStatus('connected');
+        } else if (call.outcome === 'no_answer' || call.outcome === 'busy' || call.end_time) {
+          setCallStatus('ended');
+          clearInterval(pollInterval);
+          fetchCalls(); // Refresh call list
+        }
+      } catch (error) {
+        console.error('Error polling call status:', error);
+      }
+    }, 2000);
+
+    // Stop polling after 2 minutes
+    setTimeout(() => {
+      clearInterval(pollInterval);
+    }, 120000);
+  };
+
+  const handleEndCall = async () => {
+    try {
+      // End call via API if we have an active call
+      if (activeCall && activeCall.id) {
+        await callService.endCall(activeCall.id);
+      }
+    } catch (error) {
+      console.error('Error ending call:', error);
+    } finally {
+      setCallStatus('ended');
+      setCallDialogOpen(false);
+      setActiveCall(null);
+      setCallPhoneNumber('');
+      fetchCalls();
+    }
+  };
 
   const fetchCalls = async () => {
     try {
@@ -117,6 +301,7 @@ const CallsPage = () => {
   const missedCalls = stats.missed;
   const answeredCalls = stats.answered || 0;
   const callbackCalls = stats.callback || 0;
+  const noAnswerCalls = stats.noAnswer || 0;
   const avgDuration = stats.total > 0
     ? Math.round(stats.totalDuration / stats.total)
     : 0;
@@ -286,7 +471,7 @@ const CallsPage = () => {
           <Button
             variant="outlined"
             startIcon={<PhoneIcon />}
-            onClick={() => handleOpenDialog()}
+            onClick={() => setMakeCallDialogOpen(true)}
             sx={{
               borderRadius: 1.5,
               textTransform: 'none',
@@ -413,6 +598,34 @@ const CallsPage = () => {
           flex: 1,
           p: 2,
           borderRadius: 2,
+          background: 'linear-gradient(135deg, #fce7f3 0%, #fdf2f8 100%)',
+          border: '1px solid #f9a8d4'
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography fontSize={12} color="#be185d" fontWeight={500}>No Answer</Typography>
+              <Typography variant="h4" fontWeight={700} color="#9d174d">
+                {noAnswerCalls}
+              </Typography>
+            </Box>
+            <Box sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              bgcolor: '#ec4899',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <PhoneIcon sx={{ color: 'white', fontSize: 20 }} />
+            </Box>
+          </Box>
+        </Paper>
+
+        <Paper sx={{
+          flex: 1,
+          p: 2,
+          borderRadius: 2,
           background: 'linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%)',
           border: '1px solid #fcd34d'
         }}>
@@ -512,11 +725,11 @@ const CallsPage = () => {
                   />
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Phone Number</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Called By</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Type</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Date & Time</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Duration</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Outcome</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 600, color: '#4b5563' }}>Recording</TableCell>
                 <TableCell></TableCell>
               </TableRow>
@@ -542,6 +755,27 @@ const CallsPage = () => {
                         <Typography variant="body2" sx={{ color: '#2196f3', fontWeight: 500, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
                           {call.phone_number}
                         </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box sx={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: '50%',
+                            bgcolor: '#e3f2fd',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            color: '#1976d2'
+                          }}>
+                            {call.user?.full_name?.[0] || '?'}
+                          </Box>
+                          <Typography variant="body2" fontWeight={500}>
+                            {call.user?.full_name || 'Unknown'}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -574,21 +808,16 @@ const CallsPage = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={call.call_status}
-                          size="small"
-                          sx={{ ...statusStyle, fontWeight: 500, fontSize: '0.75rem', textTransform: 'capitalize' }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {call.recording_id ? (
+                        {call.recording_url ? (
                           <Tooltip title="Play Recording">
                             <IconButton
                               size="small"
                               sx={{ color: '#2196f3' }}
                               onClick={() => {
-                                const audio = new Audio(`http://localhost:5000/api/calls/${call.id}/recording`);
-                                audio.play();
+                                // Use backend proxy to handle Twilio authentication
+                                const token = localStorage.getItem('token');
+                                const proxyUrl = `http://localhost:5000/api/calls/${call.id}/recording/play`;
+                                window.open(proxyUrl + `?token=${token}`, '_blank');
                               }}
                             >
                               <PlayIcon fontSize="small" />
@@ -622,7 +851,7 @@ const CallsPage = () => {
                 })}
               {filteredCalls.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={10} align="center" sx={{ py: 4 }}>
                     <Typography color="text.secondary">No calls found</Typography>
                   </TableCell>
                 </TableRow>
@@ -767,6 +996,147 @@ const CallsPage = () => {
           <Button onClick={handleCloseDialog} sx={{ borderRadius: 1.5 }}>Cancel</Button>
           <Button onClick={handleSubmit} variant="contained" sx={{ borderRadius: 1.5 }}>
             {selectedCall ? 'Update' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Make Call Dialog */}
+      <Dialog open={makeCallDialogOpen} onClose={() => setMakeCallDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 600 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <PhoneIcon color="success" />
+            Make a Call
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Phone Number"
+            placeholder="+1234567890"
+            value={callPhoneNumber}
+            onChange={(e) => setCallPhoneNumber(e.target.value)}
+            sx={{ mt: 2, '& .MuiOutlinedInput-root': { borderRadius: 1.5 } }}
+            helperText="Enter phone number with country code (e.g., +91 for India)"
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setMakeCallDialogOpen(false)} sx={{ borderRadius: 1.5 }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleMakeCall}
+            variant="contained"
+            color="success"
+            startIcon={<PhoneIcon />}
+            sx={{ borderRadius: 1.5 }}
+          >
+            Call Now
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Active Call Status Dialog */}
+      <Dialog
+        open={callDialogOpen}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            background: callStatus === 'connected'
+              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+              : callStatus === 'ringing'
+              ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+              : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+          }
+        }}
+      >
+        <DialogContent sx={{ textAlign: 'center', py: 4 }}>
+          {/* Call Status Icon */}
+          <Box
+            sx={{
+              width: 100,
+              height: 100,
+              borderRadius: '50%',
+              bgcolor: 'rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 3,
+              animation: callStatus === 'ringing' ? 'pulse 1.5s infinite' : 'none',
+              '@keyframes pulse': {
+                '0%': { transform: 'scale(1)', opacity: 1 },
+                '50%': { transform: 'scale(1.1)', opacity: 0.7 },
+                '100%': { transform: 'scale(1)', opacity: 1 },
+              }
+            }}
+          >
+            {callStatus === 'initiating' && <PhoneIcon sx={{ fontSize: 50, color: 'white' }} />}
+            {callStatus === 'ringing' && <RingVolumeIcon sx={{ fontSize: 50, color: 'white' }} />}
+            {callStatus === 'connected' && <PhoneInTalkIcon sx={{ fontSize: 50, color: 'white' }} />}
+            {callStatus === 'ended' && <CallEndIcon sx={{ fontSize: 50, color: 'white' }} />}
+          </Box>
+
+          {/* Phone Number */}
+          <Typography variant="h5" sx={{ color: 'white', fontWeight: 600, mb: 1 }}>
+            {callPhoneNumber}
+          </Typography>
+
+          {/* Status Text */}
+          <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)', mb: 2 }}>
+            {callStatus === 'initiating' && 'Initiating call...'}
+            {callStatus === 'ringing' && 'Ringing...'}
+            {callStatus === 'connected' && 'Connected'}
+            {callStatus === 'ended' && 'Call Ended'}
+          </Typography>
+
+          {/* Duration (only when connected) */}
+          {(callStatus === 'connected' || callStatus === 'ended') && (
+            <Typography variant="h4" sx={{ color: 'white', fontWeight: 700, fontFamily: 'monospace' }}>
+              {formatCallDuration(callDuration)}
+            </Typography>
+          )}
+
+          {/* Ringing indicator */}
+          {callStatus === 'ringing' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mt: 2 }}>
+              {[0, 1, 2].map((i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: 'white',
+                    animation: 'bounce 1.4s infinite ease-in-out both',
+                    animationDelay: `${i * 0.16}s`,
+                    '@keyframes bounce': {
+                      '0%, 80%, 100%': { transform: 'scale(0)' },
+                      '40%': { transform: 'scale(1)' },
+                    }
+                  }}
+                />
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            onClick={handleEndCall}
+            variant="contained"
+            sx={{
+              bgcolor: '#dc2626',
+              color: 'white',
+              borderRadius: 5,
+              px: 4,
+              py: 1.5,
+              '&:hover': { bgcolor: '#b91c1c' }
+            }}
+            startIcon={<CallEndIcon />}
+          >
+            {callStatus === 'ended' ? 'Close' : 'End Call'}
           </Button>
         </DialogActions>
       </Dialog>

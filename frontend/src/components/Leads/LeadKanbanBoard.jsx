@@ -299,9 +299,6 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
                 </Typography>
               )}
             </Box>
-            <IconButton size="small" onClick={handleMenuOpen}>
-              <MoreIcon fontSize="small" />
-            </IconButton>
           </Box>
 
           {/* Contact Info */}
@@ -352,7 +349,7 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
 
           {/* Recent Activities */}
           {lead.activities && lead.activities.length > 0 && (
-            <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 1, mt: 1 }}>
+            <Box sx={{ borderTop: '1px solid #f3f4f6', pt: 1, mt: 1 }}>
               {lead.activities.slice(0, 2).map((activity, idx) => (
                 <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                   <Box sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center' }}>
@@ -371,33 +368,90 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
             {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
           </Typography>
 
-          {/* Actions Menu */}
+          {/* Quick Action Buttons */}
+          <Box sx={{ display: 'flex', gap: 1, mt: 1.5, pt: 1.5, borderTop: '1px solid #f3f4f6' }}>
+            <Tooltip title="Call">
+              <IconButton
+                size="small"
+                onClick={(e) => handleAction('call', e)}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#ecfdf5',
+                  color: '#10b981',
+                  '&:hover': { bgcolor: '#d1fae5' }
+                }}
+              >
+                <PhoneIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Email">
+              <IconButton
+                size="small"
+                onClick={(e) => handleAction('email', e)}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#eff6ff',
+                  color: '#3b82f6',
+                  '&:hover': { bgcolor: '#dbeafe' }
+                }}
+              >
+                <EmailIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="WhatsApp">
+              <IconButton
+                size="small"
+                onClick={(e) => handleAction('whatsapp', e)}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#f0fdf4',
+                  color: '#25D366',
+                  '&:hover': { bgcolor: '#dcfce7' }
+                }}
+              >
+                <WhatsAppIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Schedule Meet">
+              <IconButton
+                size="small"
+                onClick={(e) => handleAction('meet', e)}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#fef3c7',
+                  color: '#f59e0b',
+                  '&:hover': { bgcolor: '#fde68a' }
+                }}
+              >
+                <MeetIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="More">
+              <IconButton
+                size="small"
+                onClick={handleMenuOpen}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: '#f3f4f6',
+                  color: '#6b7280',
+                  '&:hover': { bgcolor: '#e5e7eb' }
+                }}
+              >
+                <MoreIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          {/* More Options Menu */}
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             <MenuItem onClick={(e) => handleAction('view', e)}>
               <ListItemIcon><ViewIcon fontSize="small" /></ListItemIcon>
               <ListItemText>View Details</ListItemText>
-            </MenuItem>
-            {lead.email && (
-              <MenuItem onClick={(e) => handleAction('email', e)}>
-                <ListItemIcon><EmailIcon fontSize="small" /></ListItemIcon>
-                <ListItemText>Send Email</ListItemText>
-              </MenuItem>
-            )}
-            {lead.phone && (
-              <>
-                <MenuItem onClick={(e) => handleAction('whatsapp', e)}>
-                  <ListItemIcon><WhatsAppIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText>WhatsApp</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={(e) => handleAction('call', e)}>
-                  <ListItemIcon><PhoneIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText>Log Call</ListItemText>
-                </MenuItem>
-              </>
-            )}
-            <MenuItem onClick={(e) => handleAction('meet', e)}>
-              <ListItemIcon><MeetIcon fontSize="small" /></ListItemIcon>
-              <ListItemText>Schedule Meet</ListItemText>
             </MenuItem>
           </Menu>
         </CardContent>

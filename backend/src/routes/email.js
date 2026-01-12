@@ -21,4 +21,10 @@ router.get('/verify', emailController.verifyConfig);
 // Send test email (admin only)
 router.post('/test', emailController.sendTestEmail);
 
+// Get email logs (for admin to monitor team emails)
+router.get('/logs', emailController.getEmailLogs);
+
+// Get email stats for a specific user
+router.get('/stats/:userId', emailController.getUserEmailStats);
+
 module.exports = router;

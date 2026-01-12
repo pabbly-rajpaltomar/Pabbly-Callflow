@@ -14,6 +14,7 @@ const analyticsRoutes = require('./routes/analytics');
 const leadRoutes = require('./routes/leads');
 const webhookRoutes = require('./routes/webhooks');
 const emailRoutes = require('./routes/email');
+const teamActivityRoutes = require('./routes/teamActivity');
 
 const app = express();
 
@@ -33,6 +34,15 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health check endpoint for deployment
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Server is healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/calls', callRoutes);
 app.use('/api/contacts', contactRoutes);
@@ -41,6 +51,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/team-activity', teamActivityRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

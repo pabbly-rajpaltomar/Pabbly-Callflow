@@ -10,6 +10,8 @@ import {
   Box,
   Typography,
   Divider,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -18,8 +20,11 @@ import {
   People as PeopleIcon,
   Assessment as AssessmentIcon,
   LeaderboardOutlined as LeadsIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
+import { useThemeMode } from '../../context/ThemeContext';
 
 const drawerWidth = 260;
 
@@ -27,12 +32,12 @@ const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { mode, toggleTheme, isDark } = useThemeMode();
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard', roles: ['admin', 'manager', 'sales_rep'] },
     { text: 'Leads', icon: <LeadsIcon />, path: '/leads', roles: ['admin', 'manager', 'sales_rep'] },
     { text: 'Calls', icon: <PhoneIcon />, path: '/calls', roles: ['admin', 'manager', 'sales_rep'] },
-    { text: 'Contacts', icon: <ContactsIcon />, path: '/contacts', roles: ['admin', 'manager', 'sales_rep'] },
     { text: 'Team', icon: <PeopleIcon />, path: '/team', roles: ['admin', 'manager'] },
     { text: 'Reports', icon: <AssessmentIcon />, path: '/reports', roles: ['admin', 'manager'] },
   ];
@@ -49,7 +54,7 @@ const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
   };
 
   const drawerContent = (
-    <Box>
+    <Box sx={{ height: '100%', position: 'relative' }}>
       <Box sx={{ p: 3, textAlign: 'center' }}>
         {/* Pabbly Logo */}
         <Box
@@ -107,21 +112,21 @@ const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
                 px: 2,
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                  bgcolor: '#F5F7FA',
+                  bgcolor: isDark ? 'rgba(96, 165, 250, 0.08)' : '#F5F7FA',
                 },
                 '&.Mui-selected': {
-                  bgcolor: '#E3F2FD',
-                  color: '#2196F3',
+                  bgcolor: isDark ? 'rgba(96, 165, 250, 0.16)' : '#E3F2FD',
+                  color: isDark ? '#60a5fa' : '#2196F3',
                   '&:hover': {
-                    bgcolor: '#BBDEFB',
+                    bgcolor: isDark ? 'rgba(96, 165, 250, 0.24)' : '#BBDEFB',
                   },
                   '& .MuiListItemIcon-root': {
-                    color: '#2196F3',
+                    color: isDark ? '#60a5fa' : '#2196F3',
                   },
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: '#666' }}>
+              <ListItemIcon sx={{ minWidth: 40, color: isDark ? '#94a3b8' : '#666' }}>
                 {item.icon}
               </ListItemIcon>
               <ListItemText
@@ -135,6 +140,47 @@ const Sidebar = ({ mobileOpen, onDrawerToggle }) => {
           </ListItem>
         ))}
       </List>
+
+      {/* Theme Toggle */}
+      <Box sx={{
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        right: 0,
+        px: 3,
+      }}>
+        <Divider sx={{ mb: 2 }} />
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 1,
+        }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: isDark ? '#94a3b8' : '#666',
+              fontWeight: 500,
+            }}
+          >
+            {isDark ? 'Dark Mode' : 'Light Mode'}
+          </Typography>
+          <Tooltip title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+            <IconButton
+              onClick={toggleTheme}
+              sx={{
+                bgcolor: isDark ? 'rgba(96, 165, 250, 0.16)' : '#E3F2FD',
+                color: isDark ? '#60a5fa' : '#2196F3',
+                '&:hover': {
+                  bgcolor: isDark ? 'rgba(96, 165, 250, 0.24)' : '#BBDEFB',
+                },
+              }}
+            >
+              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
     </Box>
   );
 

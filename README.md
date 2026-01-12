@@ -142,16 +142,44 @@ When running locally:
 5. **Sales team makes calls** - automatically tracked!
 6. **View reports** on dashboard
 
-## 🚀 Deployment
+## 🚀 Deployment (Free Hosting)
 
-For production deployment (get public URLs):
+### Step 1: Create Free Database (Supabase)
+1. Go to https://supabase.com and create account
+2. Create new project
+3. Go to Settings → Database → Connection string → URI
+4. Copy the connection string (starts with `postgresql://`)
 
-- **Backend:** Deploy to Railway.app or Render.com
-- **Database:** Use managed PostgreSQL
-- **Frontend:** Deploy to Vercel.com
-- **Mobile:** Build APK and distribute
+### Step 2: Deploy Backend (Render.com)
+1. Push code to GitHub
+2. Go to https://render.com and sign up
+3. New → Web Service → Connect GitHub repo
+4. Settings:
+   - Root Directory: `backend`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+5. Add Environment Variables:
+   - `DATABASE_URL` = your Supabase connection string
+   - `JWT_SECRET` = any random strong string
+   - `NODE_ENV` = production
+   - `CORS_ORIGIN` = https://your-frontend.vercel.app
+   - Add Twilio & SMTP credentials
+6. Deploy and copy your backend URL
 
-See `SETUP_GUIDE.md` for deployment instructions.
+### Step 3: Deploy Frontend (Vercel)
+1. Go to https://vercel.com and sign up
+2. Import your GitHub repo
+3. Settings:
+   - Root Directory: `frontend`
+   - Framework: Vite
+4. Add Environment Variable:
+   - `VITE_API_URL` = https://your-backend.onrender.com/api
+5. Deploy!
+
+### Your Live URLs:
+- **Frontend:** https://your-app.vercel.app
+- **Backend:** https://your-app.onrender.com
+- **Database:** Supabase (managed)
 
 ## ⚠️ Important Notes
 

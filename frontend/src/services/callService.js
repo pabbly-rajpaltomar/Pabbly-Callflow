@@ -42,6 +42,11 @@ export const callService = {
     });
     return response.data;
   },
+
+  endCall: async (callId) => {
+    const response = await api.post(`/calls/${callId}/end`);
+    return response.data;
+  },
 };
 
 export default callService;

@@ -52,6 +52,9 @@ import {
   Cancel as CancelIcon,
   Call as CallIcon,
   Visibility as ViewIcon,
+  Email as EmailIcon,
+  WhatsApp as WhatsAppIcon,
+  VideoCall as MeetIcon,
 } from '@mui/icons-material';
 import leadService from '../services/leadService';
 import callService from '../services/callService';
@@ -712,7 +715,7 @@ const LeadsPage = () => {
                                 <ViewIcon sx={{ fontSize: 18 }} />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="Call Now">
+                            <Tooltip title="Call">
                               <IconButton
                                 size="small"
                                 onClick={() => handleInitiateCall(lead)}
@@ -724,16 +727,47 @@ const LeadsPage = () => {
                                 <PhoneIcon sx={{ fontSize: 18 }} />
                               </IconButton>
                             </Tooltip>
+                            <Tooltip title="Email">
+                              <IconButton
+                                size="small"
+                                onClick={() => lead.email && window.open(`mailto:${lead.email}`, '_blank')}
+                                sx={{
+                                  color: '#3b82f6',
+                                  '&:hover': { bgcolor: '#dbeafe' }
+                                }}
+                              >
+                                <EmailIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="WhatsApp">
+                              <IconButton
+                                size="small"
+                                onClick={() => lead.phone && window.open(`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`, '_blank')}
+                                sx={{
+                                  color: '#25D366',
+                                  '&:hover': { bgcolor: '#dcfce7' }
+                                }}
+                              >
+                                <WhatsAppIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Schedule Meet">
+                              <IconButton
+                                size="small"
+                                onClick={() => window.open('https://meet.google.com/new', '_blank')}
+                                sx={{
+                                  color: '#ea4335',
+                                  '&:hover': { bgcolor: '#fee2e2' }
+                                }}
+                              >
+                                <MeetIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
                             {lead.lead_status !== 'converted' && (
                               <>
-                                <Tooltip title="Convert to Contact">
-                                  <IconButton size="small" onClick={() => handleConvert(lead.id)}>
-                                    <ConvertIcon sx={{ color: '#4caf50' }} />
-                                  </IconButton>
-                                </Tooltip>
                                 <Tooltip title="Edit">
                                   <IconButton size="small" onClick={() => handleOpenEditDialog(lead)}>
-                                    <EditIcon sx={{ color: '#2196f3' }} />
+                                    <EditIcon sx={{ color: '#2196f3', fontSize: 18 }} />
                                   </IconButton>
                                 </Tooltip>
                               </>
@@ -741,13 +775,10 @@ const LeadsPage = () => {
                             {(user?.role === 'admin' || user?.role === 'manager') && (
                               <Tooltip title="Delete">
                                 <IconButton size="small" onClick={() => handleDelete(lead.id)}>
-                                  <DeleteIcon sx={{ color: '#f44336' }} />
+                                  <DeleteIcon sx={{ color: '#f44336', fontSize: 18 }} />
                                 </IconButton>
                               </Tooltip>
                             )}
-                            <IconButton size="small">
-                              <MoreIcon sx={{ color: '#6b7280' }} />
-                            </IconButton>
                           </Box>
                         </TableCell>
                       </TableRow>
