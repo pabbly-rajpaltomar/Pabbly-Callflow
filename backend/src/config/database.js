@@ -47,10 +47,15 @@ if (process.env.DATABASE_URL) {
 
 const testConnection = async () => {
   try {
+    console.log('Attempting database connection...');
+    console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
     await sequelize.authenticate();
     console.log('✓ Database connection established successfully.');
   } catch (error) {
-    console.error('✗ Unable to connect to the database:', error.message);
+    console.error('✗ Unable to connect to the database:');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Full error:', error);
     process.exit(1);
   }
 };
