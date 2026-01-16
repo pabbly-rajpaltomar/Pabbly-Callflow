@@ -813,7 +813,8 @@ const CallsPage = () => {
                               onClick={() => {
                                 // Use backend proxy to handle Twilio authentication
                                 const token = localStorage.getItem('token');
-                                const proxyUrl = `http://localhost:5000/api/calls/${call.id}/recording/play`;
+                                const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                                const proxyUrl = `${apiBase}/calls/${call.id}/recording/play`;
                                 window.open(proxyUrl + `?token=${token}`, '_blank');
                               }}
                             >
