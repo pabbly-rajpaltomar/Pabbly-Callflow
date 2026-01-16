@@ -61,7 +61,7 @@ exports.createCall = async (req, res) => {
 
 exports.getCalls = async (req, res) => {
   try {
-    const { page = 1, limit = 20, user_id, call_type, call_status, start_date, end_date } = req.query;
+    const { page = 1, limit = 20, user_id, call_type, call_status, start_date, end_date, phone } = req.query;
 
     const where = {};
 
@@ -73,6 +73,17 @@ exports.getCalls = async (req, res) => {
 
     if (call_type) where.call_type = call_type;
     if (call_status) where.call_status = call_status;
+
+    // Filter by phone number if provided
+    if (phone) {
+      const cleanPhone = phone.replace(/\D/g, '');
+      where.phone_number = {
+        [Op.or]: [
+          { [Op.like]: `%${cleanPhone}%` },
+          { [Op.like]: `%${phone}%` }
+        ]
+      };
+    }
 
     if (start_date || end_date) {
       where.start_time = {};

@@ -59,6 +59,11 @@ export const leadService = {
   getLeadActivities: async (id, limit = 50) => {
     const response = await api.get(`/leads/${id}/activities`, { params: { limit } });
     return response.data;
+  },
+
+  getLeadEmails: async (id) => {
+    const response = await api.get(`/leads/${id}/emails`);
+    return response.data;
   }
 };
 

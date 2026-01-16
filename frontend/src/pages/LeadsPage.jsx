@@ -160,6 +160,11 @@ const LeadsPage = () => {
     setOpenDialog(true);
   };
 
+  // Handle view lead details - navigate to detail page
+  const handleViewLead = (lead) => {
+    navigate(`/leads/${lead.id}`);
+  };
+
   // Handle open edit dialog
   const handleOpenEditDialog = (lead) => {
     setEditingLead(lead);
@@ -563,7 +568,8 @@ const LeadsPage = () => {
       {viewMode === 'kanban' ? (
         <LeadKanbanBoard
           filters={{}}
-          onLeadClick={handleOpenEditDialog}
+          onLeadClick={handleViewLead}
+          onLeadEdit={handleOpenEditDialog}
           onRefresh={fetchLeads}
         />
       ) : (

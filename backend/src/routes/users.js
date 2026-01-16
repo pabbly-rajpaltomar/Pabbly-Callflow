@@ -10,6 +10,7 @@ router.get('/:id', userController.getUserById);
 router.get('/:id/stats', userController.getUserStats);
 router.post('/', userController.createUser);
 router.post('/bulk', userController.bulkCreateUsers);
+router.post('/change-password', userController.changePassword);
 router.post('/:id/reset-password', userController.resetUserPassword);
 router.patch('/:id/status', userController.toggleUserStatus);
 router.patch('/:id/team', userController.assignUserToTeam);

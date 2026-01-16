@@ -36,6 +36,11 @@ export const userService = {
     return response.data;
   },
 
+  changePassword: async (currentPassword, newPassword) => {
+    const response = await api.post('/users/change-password', { currentPassword, newPassword });
+    return response.data;
+  },
+
   resetUserPassword: async (id) => {
     const response = await api.post(`/users/${id}/reset-password`);
     return response.data;

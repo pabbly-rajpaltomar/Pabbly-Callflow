@@ -24,7 +24,10 @@ import {
   Email as EmailIcon,
   Phone as PhoneIcon,
   Badge as BadgeIcon,
-  CalendarMonth as CalendarIcon
+  CalendarMonth as CalendarIcon,
+  Lock as LockIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import userService from '../services/userService';
@@ -36,6 +39,17 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const fileInputRef = useRef(null);
+
+  // Password change states
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
   const [formData, setFormData] = useState({
     full_name: user?.full_name || '',
@@ -74,6 +88,42 @@ const ProfilePage = () => {
     const url = prompt('Enter image URL for your profile photo:', formData.avatar_url);
     if (url !== null) {
       setFormData({ ...formData, avatar_url: url });
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setSnackbar({ open: true, message: 'All password fields are required', severity: 'error' });
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setSnackbar({ open: true, message: 'New passwords do not match', severity: 'error' });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setSnackbar({ open: true, message: 'Password must be at least 6 characters', severity: 'error' });
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+      await userService.changePassword(passwordData.currentPassword, passwordData.newPassword);
+      setSnackbar({ open: true, message: 'Password changed successfully!', severity: 'success' });
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Failed to change password',
+        severity: 'error'
+      });
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -373,6 +423,113 @@ const ProfilePage = () => {
               />
             </Box>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Change Password Card */}
+      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.08)', mt: 3 }}>
+        <CardContent sx={{ p: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: 2,
+                bgcolor: '#fee2e2',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <LockIcon sx={{ color: '#dc2626' }} />
+            </Box>
+            <Typography variant="h6" fontWeight={600}>
+              Change Password
+            </Typography>
+          </Box>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                name="currentPassword"
+                label="Current Password"
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+                fullWidth
+                size="small"
+                InputProps={{
+                  endAdornment: (
+                    <IconButton
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showCurrentPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  )
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="newPassword"
+                label="New Password"
+                type={showNewPassword ? 'text' : 'password'}
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+                fullWidth
+                size="small"
+                InputProps={{
+                  endAdornment: (
+                    <IconButton
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  )
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                name="confirmPassword"
+                label="Confirm New Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+                fullWidth
+                size="small"
+                InputProps={{
+                  endAdornment: (
+                    <IconButton
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                      size="small"
+                    >
+                      {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  )
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                onClick={handleChangePassword}
+                disabled={passwordLoading}
+                sx={{
+                  borderRadius: 2,
+                  bgcolor: '#dc2626',
+                  '&:hover': { bgcolor: '#b91c1c' }
+                }}
+              >
+                {passwordLoading ? <CircularProgress size={20} color="inherit" /> : 'Change Password'}
+              </Button>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 

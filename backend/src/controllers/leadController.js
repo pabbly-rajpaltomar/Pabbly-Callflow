@@ -1,5 +1,6 @@
-const { Lead, Contact, User, WebhookLog, LeadActivity } = require('../models');
+const { Lead, Contact, User, WebhookLog, LeadActivity, EmailLog } = require('../models');
 const { Op } = require('sequelize');
+const { sequelize } = require('../config/database');
 const leadAssignmentService = require('../services/leadAssignmentService');
 const config = require('../config/config');
 
@@ -459,12 +460,42 @@ exports.getLeadsByStage = async (req, res) => {
             limit: 3,
             order: [['created_at', 'DESC']],
             include: [{ model: User, as: 'user', attributes: ['id', 'full_name'] }]
+          },
+          {
+            model: EmailLog,
+            as: 'emailLogs',
+            limit: 3,
+            order: [['sent_at', 'DESC']],
+            attributes: ['id', 'subject', 'sent_at', 'metadata', 'recipient_email']
           }
         ],
         order: [['created_at', 'DESC']]
       });
 
-      kanbanData[stage] = leads;
+      // Combine activities and emails for display
+      const leadsWithCombinedActivities = leads.map(lead => {
+        const leadData = lead.toJSON();
+
+        // Add email activities to activities array
+        if (leadData.emailLogs && leadData.emailLogs.length > 0) {
+          const emailActivities = leadData.emailLogs.map(email => ({
+            activity_type: email.metadata?.direction === 'inbound' ? 'email_received' : 'email_sent',
+            description: email.metadata?.direction === 'inbound'
+              ? `Received: ${email.subject}`
+              : `Sent email: ${email.subject}`,
+            created_at: email.sent_at
+          }));
+
+          // Merge and sort by date
+          leadData.activities = [...(leadData.activities || []), ...emailActivities]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 3);
+        }
+
+        return leadData;
+      });
+
+      kanbanData[stage] = leadsWithCombinedActivities;
     }
 
     res.json({
@@ -622,6 +653,65 @@ exports.getLeadActivities = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error while fetching activities.',
+      error: error.message
+    });
+  }
+};
+
+// Get email history for a lead
+exports.getLeadEmails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const lead = await Lead.findByPk(id);
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: 'Lead not found.'
+      });
+    }
+
+    // Role-based access control
+    if (req.user.role === 'sales_rep' && lead.assigned_to !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied.'
+      });
+    }
+
+    // Get emails by lead_id OR by matching email address (sent OR received)
+    const whereConditions = [{ lead_id: id }];
+
+    if (lead.email) {
+      // Sent emails - recipient_email matches lead's email
+      whereConditions.push({ recipient_email: { [Op.iLike]: lead.email } });
+
+      // Received emails - from_email in metadata matches lead's email (JSONB query)
+      whereConditions.push(
+        sequelize.literal(`metadata->>'from_email' ILIKE '${lead.email.replace(/'/g, "''")}'`)
+      );
+    }
+
+    const emails = await EmailLog.findAll({
+      where: {
+        [Op.or]: whereConditions
+      },
+      include: [
+        { model: User, as: 'user', attributes: ['id', 'full_name', 'email'] }
+      ],
+      order: [['sent_at', 'DESC']]
+    });
+
+    res.json({
+      success: true,
+      data: { emails }
+    });
+  } catch (error) {
+    console.error('Get lead emails error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching emails.',
       error: error.message
     });
   }

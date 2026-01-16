@@ -13,6 +13,7 @@ router.get('/kanban', leadController.getLeadsByStage);
 router.get('/webhook-url', leadController.getWebhookUrl);
 router.get('/:id', leadController.getLeadById);
 router.get('/:id/activities', leadController.getLeadActivities);
+router.get('/:id/emails', leadController.getLeadEmails);
 router.put('/:id', leadController.updateLead);
 router.patch('/:id/stage', leadController.updateLeadStage);
 router.post('/:id/activity', leadController.logLeadActivity);

@@ -33,3 +33,4 @@ backend/uploads/
 # Temp files
 *.tmp
 *.temp
+frontend/nul

@@ -45,7 +45,7 @@ import leadService from '../../services/leadService';
 import emailService from '../../services/emailService';
 import callService from '../../services/callService';
 
-const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
+const LeadKanbanBoard = ({ filters, onLeadClick, onLeadEdit, onRefresh }) => {
   const theme = useTheme();
   const [kanbanData, setKanbanData] = useState({
     new: [],
@@ -345,6 +345,8 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
     const icons = {
       call: <PhoneIcon fontSize="small" />,
       email: <EmailIcon fontSize="small" />,
+      email_sent: <EmailIcon fontSize="small" sx={{ color: '#3b82f6' }} />,
+      email_received: <EmailIcon fontSize="small" sx={{ color: '#22c55e' }} />,
       whatsapp: <WhatsAppIcon fontSize="small" />,
       meeting: <MeetIcon fontSize="small" />,
       stage_change: <ConvertIcon fontSize="small" />
@@ -420,6 +422,8 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
 
       if (action === 'view') {
         onLeadClick(lead);
+      } else if (action === 'edit') {
+        if (onLeadEdit) onLeadEdit(lead);
       } else if (action === 'email') {
         // Open email dialog instead of mailto
         openEmailDialog(lead);
@@ -639,6 +643,10 @@ const LeadKanbanBoard = ({ filters, onLeadClick, onRefresh }) => {
             <MenuItem onClick={(e) => handleAction('view', e)}>
               <ListItemIcon><ViewIcon fontSize="small" /></ListItemIcon>
               <ListItemText>View Details</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={(e) => handleAction('edit', e)}>
+              <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+              <ListItemText>Edit Lead</ListItemText>
             </MenuItem>
           </Menu>
         </CardContent>
