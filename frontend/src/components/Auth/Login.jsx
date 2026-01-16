@@ -16,6 +16,11 @@ import {
   Google as GoogleIcon,
   Visibility,
   VisibilityOff,
+  Link as LinkIcon,
+  Chat as ChatIcon,
+  Payment as PaymentIcon,
+  Email as EmailIcon,
+  Webhook as WebhookIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -46,12 +51,14 @@ const Login = () => {
     }
   };
 
+  const [activeSlide, setActiveSlide] = useState(0);
+
   const features = [
-    { icon: '🔗', title: 'Pabbly Connect', desc: 'Automate tasks & save 100X time.' },
-    { icon: '💬', title: 'Pabbly ChatFlow', desc: 'Automate WhatsApp conversation effortlessly.' },
-    { icon: '💳', title: 'Pabbly Subscription Billing', desc: 'Sell online & collect payments.' },
-    { icon: '📧', title: 'Pabbly Email Marketing', desc: 'Send emails to subscribers.' },
-    { icon: '🔌', title: 'Pabbly Hook', desc: 'Webhook event handling for scalable applications.' },
+    { icon: <LinkIcon sx={{ color: '#8b5cf6', fontSize: 24 }} />, title: 'Pabbly Connect', desc: 'Automate tasks & save 100X time.', bgColor: '#f3e8ff' },
+    { icon: <ChatIcon sx={{ color: '#ec4899', fontSize: 24 }} />, title: 'Pabbly ChatFlow', desc: 'Automate WhatsApp conversation effortlessly.', bgColor: '#fce7f3' },
+    { icon: <PaymentIcon sx={{ color: '#3b82f6', fontSize: 24 }} />, title: 'Pabbly Subscription Billing', desc: 'Sell online & collect payments.', bgColor: '#dbeafe' },
+    { icon: <EmailIcon sx={{ color: '#f97316', fontSize: 24 }} />, title: 'Pabbly Email Marketing', desc: 'Send emails to subscribers.', bgColor: '#ffedd5' },
+    { icon: <WebhookIcon sx={{ color: '#eab308', fontSize: 24 }} />, title: 'Pabbly Hook', desc: 'Webhook event handling for scalable applications.', bgColor: '#fef9c3' },
   ];
 
   return (
@@ -89,7 +96,7 @@ const Login = () => {
               fontSize: '1.875rem',
             }}
           >
-            Unlimited Access & Features!
+            No Restrictions on Features!
           </Typography>
 
           {/* Subtitle */}
@@ -101,7 +108,7 @@ const Login = () => {
               fontSize: '0.9375rem',
             }}
           >
-            Get Access to All Pabbly Applications at Single Price.
+            Scale & Grow Your Business with Pabbly.
           </Typography>
 
           {/* Features with icon boxes */}
@@ -113,13 +120,12 @@ const Login = () => {
                     width: 48,
                     height: 48,
                     borderRadius: '50%',
-                    bgcolor: 'white',
+                    bgcolor: feature.bgColor || 'white',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.5rem',
                     flexShrink: 0,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 >
                   {feature.icon}
@@ -153,8 +159,26 @@ const Login = () => {
           </Box>
         </Box>
 
+        {/* Slider dots */}
+        <Box sx={{ display: 'flex', gap: 1, mb: 4 }}>
+          {[0, 1].map((dot) => (
+            <Box
+              key={dot}
+              onClick={() => setActiveSlide(dot)}
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                bgcolor: activeSlide === dot ? '#4a5568' : '#d1d5db',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+              }}
+            />
+          ))}
+        </Box>
+
         {/* Certification badges at bottom */}
-        <Box sx={{ display: 'flex', gap: 2.5, mt: 8 }}>
+        <Box sx={{ display: 'flex', gap: 2.5 }}>
           <Box
             sx={{
               width: 72,
