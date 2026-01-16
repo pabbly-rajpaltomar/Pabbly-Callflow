@@ -230,18 +230,19 @@ const Login = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          p: 4,
+          p: { xs: 2, sm: 4 },
           bgcolor: 'white',
+          minHeight: { xs: '100vh', md: 'auto' },
         }}
       >
-        <Box sx={{ maxWidth: 460, width: '100%' }}>
+        <Box sx={{ maxWidth: 420, width: '100%', px: { xs: 1, sm: 0 } }}>
           {/* Mobile Logo */}
-          <Box sx={{ display: { xs: 'block', md: 'none' }, mb: 4 }}>
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', mb: 4 }}>
             <Box
               component="img"
               src="https://www.pabbly.com/wp-content/uploads/2020/08/Pabbly-Logo.svg"
               alt="Pabbly Logo"
-              sx={{ height: 26 }}
+              sx={{ height: 32 }}
             />
           </Box>
 
@@ -251,8 +252,9 @@ const Login = () => {
             sx={{
               fontWeight: 700,
               mb: 0.5,
-              fontSize: '1.875rem',
+              fontSize: { xs: '1.5rem', sm: '1.875rem' },
               color: '#1a1a1a',
+              textAlign: 'center',
             }}
           >
             Login to Pabbly Account
@@ -265,13 +267,14 @@ const Login = () => {
               mb: 1,
               fontSize: '0.875rem',
               color: '#9ca3af',
+              textAlign: 'center',
             }}
           >
             Sign in seconds. No credit card required.
           </Typography>
 
-          {/* Sign up link - right aligned */}
-          <Box sx={{ textAlign: 'right', mb: 2.5 }}>
+          {/* Sign up link - centered */}
+          <Box sx={{ textAlign: 'center', mb: 2.5 }}>
             <Typography
               variant="body2"
               component="span"
